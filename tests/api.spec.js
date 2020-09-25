@@ -106,10 +106,6 @@ describe('API', () => {
         expect(respondedActivity.description).toEqual(activityToCreateAndUpdate.description);
         activityToCreateAndUpdate = respondedActivity;
       });
-      xit('Requires logged in user', async () => {
-        // Needs a test here
-        expect(false).toBe(true);
-      });
     });
     describe('PATCH /activities/:activityId (*)', () => {
       it('Anyone can update an activity (yes, this could lead to long term problems a la wikipedia)', async () => {
@@ -117,10 +113,6 @@ describe('API', () => {
         const {data: respondedActivity} = await axios.patch(`${API_URL}/api/activities/${activityToCreateAndUpdate.id}`, newActivityData, { headers: {'Authorization': `Bearer ${token}`} });
         expect(respondedActivity.name).toEqual(newActivityData.name);
         expect(respondedActivity.description).toEqual(newActivityData.description);
-      });
-      xit('Requires logged in user', async () => {
-        // Needs a test here
-        expect(false).toBe(true);
       });
     });
     describe('GET /activities/:activityId/routines', () => {
@@ -167,10 +159,6 @@ describe('API', () => {
         expect(respondedRoutine.goal).toEqual(newRoutineData.goal);
         routineToCreateAndUpdate = respondedRoutine;
       });
-      xit('Logged in user should be the owner of the modified object.', async () => {
-        // Needs a test here
-        expect(false).toBe(true);
-      });
     });
     describe('DELETE /routines/:routineId (**)', async () => {
       it('Hard deletes a routine. Makes sure to delete all the routineActivities whose routine is the one being deleted.', async () => {
@@ -180,10 +168,6 @@ describe('API', () => {
         expect(deletedRoutine.name).toBe(routineToCreateAndUpdate.name);
         expect(deletedRoutine.goal).toBe(routineToCreateAndUpdate.goal);
         expect(shouldBeDeleted).toBeFalsy();
-      });
-      xit('Logged in user should be the owner of the modified object.', async () => {
-        // Needs a test here
-        expect(false).toBe(true);
       });
     });
     describe('POST /routines/:routineId/activities', async () => {
