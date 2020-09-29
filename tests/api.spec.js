@@ -52,11 +52,11 @@ describe('API', () => {
         expect(queriedUser.password).not.toBe(newUser.password);
         expect(await bcrypt.compare(newUser.password, queriedUser.password)).toBe(true);
       });
-      it('Throw errors for duplicate username', async () => {
+      it('Throws errors for duplicate username', async () => {
         const duplicateResponse = await axios.post(`${API_URL}/api/users/register`, newUser);
         expect(duplicateResponse.data.message).toBe('A user by that username already exists');
       });
-      it('Throw errors for password-too-short.', async () => {
+      it('Throws errors for password-too-short.', async () => {
         expect(tooShortResponse.data.message).toBe('Password Too Short!');
       });
     });
