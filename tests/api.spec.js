@@ -140,9 +140,9 @@ describe('API', () => {
     });
   });
   describe('Routines', () => {
-    let routineToCreateAndUpdate = {isPublic: true, name: 'Eliptical Day', goal: 'Work on that Eliptical!'};
-    let routineToFail = {isPublic: false, name: 'Eliptical Day 2', goal: 'Work on that Eliptical... again!'};
-    const newRoutineData = {isPublic: false, name: 'Eliptical Day Private', goal: 'Work on that Eliptical, yet again!'}
+    let routineToCreateAndUpdate = {isPublic: true, name: 'Elliptical Day', goal: 'Work on that Elliptical!'};
+    let routineToFail = {isPublic: false, name: 'Elliptical Day 2', goal: 'Work on that Elliptical... again!'};
+    const newRoutineData = {isPublic: false, name: 'Elliptical Day Private', goal: 'Work on that Elliptical, yet again!'}
     describe('GET /routines', async () => {
       it('Returns a list of public routines, includes the activities with them', async () => {
         const publicRoutinesFromDB = await getAllPublicRoutines();

@@ -74,7 +74,7 @@ describe('Database', () => {
     })
     describe('createActivity({ name, description })', () => {
       it('Creates and returns the new activity', async () => {
-        const activityToCreate = { name: 'eliptical', description: '20 minutes of eliptical' };
+        const activityToCreate = { name: 'elliptical', description: '20 minutes of elliptical' };
         const createdActivity = await createActivity(activityToCreate);
         expect(createdActivity.name).toBe(activityToCreate.name);
         expect(createdActivity.description).toBe(activityToCreate.description);
