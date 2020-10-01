@@ -106,7 +106,7 @@ describe('Database', () => {
         expect(routine).toEqual(expect.objectContaining({
           id: expect.any(Number),
           creatorId: expect.any(Number),
-          public: expect.any(Boolean),
+          isPublic: expect.any(Boolean),
           name: expect.any(String),
           goal: expect.any(String),
           activities: expect.any(Array),
@@ -134,12 +134,12 @@ describe('Database', () => {
         expect(routine).toEqual(expect.objectContaining({
           id: expect.any(Number),
           creatorId: expect.any(Number),
-          public: expect.any(Boolean),
+          isPublic: expect.any(Boolean),
           name: expect.any(String),
           goal: expect.any(String),
           activities: expect.any(Array),
         }));
-        expect(routine.public).toBe(true);
+        expect(routine.isPublic).toBe(true);
       })
       it('includes username, from users join, aliased as creatorName', async () => {
         expect(routine).toEqual(expect.objectContaining({
@@ -164,7 +164,7 @@ describe('Database', () => {
         expect(routine).toEqual(expect.objectContaining({
           id: expect.any(Number),
           creatorId: expect.any(Number),
-          public: expect.any(Boolean),
+          isPublic: expect.any(Boolean),
           name: expect.any(String),
           goal: expect.any(String),
           activities: expect.any(Array),
@@ -194,13 +194,13 @@ describe('Database', () => {
         expect(routine).toEqual(expect.objectContaining({
           id: expect.any(Number),
           creatorId: expect.any(Number),
-          public: expect.any(Boolean),
+          isPublic: expect.any(Boolean),
           name: expect.any(String),
           goal: expect.any(String),
           activities: expect.any(Array),
         }));
         expect(routine.creatorId).toBe(user.id);
-        expect(routine.public).toBe(true);
+        expect(routine.isPublic).toBe(true);
       })
       it('includes username, from users join, aliased as creatorName', async () => {
         expect(routine).toEqual(expect.objectContaining({
@@ -225,12 +225,12 @@ describe('Database', () => {
         expect(routine).toEqual(expect.objectContaining({
           id: expect.any(Number),
           creatorId: expect.any(Number),
-          public: expect.any(Boolean),
+          isPublic: expect.any(Boolean),
           name: expect.any(String),
           goal: expect.any(String),
           activities: expect.any(Array),
         }));
-        expect(routine.public).toBe(true);
+        expect(routine.isPublic).toBe(true);
       })
       it('includes username, from users join, aliased as creatorName', async () => {
         expect(routine).toEqual(expect.objectContaining({
@@ -247,7 +247,7 @@ describe('Database', () => {
     })
     describe('createRoutine', () => {
       it('creates and returns the new routine', async () => {
-        routineToCreateAndUpdate = await createRoutine({creatorId: 2, public: true, name: 'BodyWeight Day', goal: 'Do workouts that can be done from home, no gym or weights required.'});
+        routineToCreateAndUpdate = await createRoutine({creatorId: 2, isPublic: true, name: 'BodyWeight Day', goal: 'Do workouts that can be done from home, no gym or weights required.'});
         const queriedRoutine = await getRoutineById(routineToCreateAndUpdate.id)
         expect(routineToCreateAndUpdate).toEqual(queriedRoutine);
       })
@@ -255,7 +255,7 @@ describe('Database', () => {
     describe('updateRoutine', () => {
       let queriedRoutine;
       beforeAll(async() => {
-        routineToCreateAndUpdate = await updateRoutine({id: routineToCreateAndUpdate.id, public: false, name: 'Arms Day', goal: 'Do all workouts that work those arms!'});
+        routineToCreateAndUpdate = await updateRoutine({id: routineToCreateAndUpdate.id, isPublic: false, name: 'Arms Day', goal: 'Do all workouts that work those arms!'});
         queriedRoutine = await getRoutineById(routineToCreateAndUpdate.id);
       })
       it('Returns the updated routine', async () => {
@@ -265,14 +265,14 @@ describe('Database', () => {
         expect(routineToCreateAndUpdate.id).toBe(queriedRoutine.id);
       })
       it('Updates the public status, name, or goal, as necessary', async () => {
-        expect(routineToCreateAndUpdate.public).toBe(queriedRoutine.public);
+        expect(routineToCreateAndUpdate.isPublic).toBe(queriedRoutine.isPublic);
         expect(routineToCreateAndUpdate.name).toBe(queriedRoutine.name);
         expect(routineToCreateAndUpdate.goal).toBe(queriedRoutine.goal);
       })
       it('Does not update fields that are not passed in', async () => {
         const name = 'Abs Day';
         routineToCreateAndUpdate = await updateRoutine({id: routineToCreateAndUpdate.id, name, goal: 'Do all workouts that work those arms!'});
-        expect(routineToCreateAndUpdate.public).toBe(queriedRoutine.public);
+        expect(routineToCreateAndUpdate.isPublic).toBe(queriedRoutine.isPublic);
         expect(routineToCreateAndUpdate.name).toBe(name);
         expect(routineToCreateAndUpdate.goal).toBe(queriedRoutine.goal);
       })
