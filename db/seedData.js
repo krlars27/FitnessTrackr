@@ -73,10 +73,10 @@ async function createInitialRoutines() {
     console.log('starting to create routines...');
 
     const routinesToCreate = [
-      {creatorId: 2, public: false, name: 'Bicep Day', goal: 'Work the Back and Biceps.'},
-      {creatorId: 1, public: true, name: 'Chest Day', goal: 'To beef up the Chest and Triceps!'},
-      {creatorId: 1, public: false, name: 'Leg Day', goal: 'Running, stairs, squats'},
-      {creatorId: 2, public: true, name: 'Cardio Day', goal: 'Running, stairs. Stuff that gets your heart pumping!'},
+      {creatorId: 2, isPublic: false, name: 'Bicep Day', goal: 'Work the Back and Biceps.'},
+      {creatorId: 1, isPublic: true, name: 'Chest Day', goal: 'To beef up the Chest and Triceps!'},
+      {creatorId: 1, isPublic: false, name: 'Leg Day', goal: 'Running, stairs, squats'},
+      {creatorId: 2, isPublic: true, name: 'Cardio Day', goal: 'Running, stairs. Stuff that gets your heart pumping!'},
     ]
     const routines = await Promise.all(routinesToCreate.map(routine => createRoutine(routine)));
     console.log('Routines Created: ', routines)
