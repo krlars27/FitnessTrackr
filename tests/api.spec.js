@@ -72,6 +72,20 @@ describe('API', () => {
         expect(parsedToken.username).toEqual(registeredUser.username);
       });
     })
+    describe('GET /users/me', () => {
+      it('sends back users data if valid token is supplied in header', async () => {
+        const {data} = await axios.get(`${API_URL}/api/users/me`, {
+          headers: {'Authorization': `Bearer ${token}`}
+        });        
+        expect(data.username).toBeTruthy();
+        expect(data.username).toBe(registeredUser.username);
+      });
+      it('rejects requests with no valid token', async () => {
+        const {data} = await axios.get(`${API_URL}/api/users/me`);
+        expect(data.username).toBeFalsy();
+        expect(data.message).toBe('You must be logged in to perform this action');
+      });
+    });
     describe('GET /users/:username/routines', () => {
       it('Gets a list of public routines for a particular user.', async () => {
         const userId = 2;
