@@ -1,9 +1,6 @@
 // require in the database adapter functions as you write them (createUser, createActivity...)
 // const { } = require('./');
 const client = require('./client');
-const bcrypt = require('bcrypt');
-const SALT_COUNT = 10;
-
 
 async function dropTables() {
   console.log('Dropping All Tables...');
