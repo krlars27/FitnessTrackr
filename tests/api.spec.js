@@ -7,7 +7,8 @@ const axios = require('axios');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { API_URL } = process.env || 'http://localhost:3000';
+const { SERVER_ADDRESS = 'http://localhost:', PORT = 3000 } = process.env;
+const API_URL = process.env.API_URL || SERVER_ADDRESS + PORT;
 const { JWT_SECRET } = process.env || 'neverTell';
 
 const { rebuildDB } = require('../db/seedData');
@@ -43,7 +44,7 @@ describe('API', () => {
       it('Requires username and password. Requires all passwords to be at least 8 characters long.', () => {
         expect(newUser.password.length).toBeGreaterThan(7);
       });
-      it('Hashes password before saving user to DB.', async () => {
+      it('EXTRA CREDIT: Hashes password before saving user to DB.', async () => {
         const {rows: [queriedUser]} = await client.query(`
           SELECT *
           FROM users
