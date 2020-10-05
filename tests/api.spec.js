@@ -196,7 +196,8 @@ describe('API', () => {
       });
       it('Prevents duplication on (routineId, activityId) pair.', async () => {
         const {data: respondedRoutineActivity} = await axios.post(`${API_URL}/api/routines/${newRoutine.id}/activities`, routineActivityToCreateAndUpdate, { headers: {'Authorization': `Bearer ${token}`} });
-        expect(respondedRoutineActivity).toBeFalsy();
+        expect(respondedRoutineActivity && respondedRoutineActivity.routineId).toBeFalsy();
+        expect(respondedRoutineActivity && respondedRoutineActivity.activityId).toBeFalsy();
       });
     });
   });

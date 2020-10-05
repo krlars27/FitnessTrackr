@@ -46,11 +46,11 @@ async function createInitialActivities() {
     const activitiesToCreate = [
       { name: 'wide-grip standing barbell curl', description: 'Lift that barbell!' },
       { name: 'Incline Dumbbell Hammer Curl', description: 'Lie down face up on an incline bench and lift thee barbells slowly upward toward chest' },
-      { name: 'bench press', description: '3 sets of 10. Lift a safe amount, but push yourself!' },
+      { name: 'bench press', description: 'Lift a safe amount, but push yourself!' },
       { name: 'Push Ups', description: 'Pretty sure you know what to do!' },
       { name: 'squats', description: 'Heavy lifting.' },
-      { name: 'treadmill', description: '30 minutes of running' },
-      { name: 'stairs', description: '20 minutes of climbing' },
+      { name: 'treadmill', description: 'running' },
+      { name: 'stairs', description: 'climb those stairs' },
     ]
     const activities = await Promise.all(activitiesToCreate.map(createActivity));
 
@@ -79,7 +79,7 @@ async function createInitialRoutines() {
     console.log('Routines Created: ', routines)
     console.log('Finished creating routines.')
   } catch (error) {
-      throw error;
+    throw error;
   }
 }
 
@@ -94,62 +94,62 @@ async function createInitialRoutineActivities() {
         routineId: bicepRoutine.id,
         activityId: bicep1.id,
         count: 10,
-        duration: 10000 
+        duration: 5 
       },
       {
         routineId: bicepRoutine.id,
         activityId: bicep2.id,
         count: 10,
-        duration: 10000 
+        duration: 8 
       },
       {
         routineId: chestRoutine.id,
         activityId: chest1.id,
         count: 10,
-        duration: 10000 
+        duration: 8 
       },
       {
         routineId: chestRoutine.id,
         activityId: chest2.id,
         count: 10,
-        duration: 10000 
+        duration: 7 
       },
       {
         routineId: legRoutine.id,
         activityId: leg1.id,
         count: 10,
-        duration: 10000 
+        duration: 9 
       },
       {
         routineId: legRoutine.id,
         activityId: leg2.id,
         count: 10,
-        duration: 10000 
+        duration: 10 
       },
       {
         routineId: legRoutine.id,
         activityId: leg3.id,
         count: 10,
-        duration: 10000 
+        duration: 7 
       },
       {
         routineId: cardioRoutine.id,
         activityId: leg2.id,
         count: 10,
-        duration: 10000 
+        duration: 10 
       },
       {
         routineId: cardioRoutine.id,
         activityId: leg3.id,
         count: 10,
-        duration: 10000 
+        duration: 15 
       },
     ]
     const routineActivities = await Promise.all(routineActivitiesToCreate.map(addActivityToRoutine));
     console.log('routine_activities created: ', routineActivities)
     console.log('Finished creating routine_activities!')
   } catch (error) {
-      throw error;
+    throw error;
   }
 }
 
