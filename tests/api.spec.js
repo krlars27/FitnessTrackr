@@ -31,11 +31,15 @@ describe('API', () => {
     let newUser = { username: 'robert', password: 'bobbylong321' };
     let newUserShortPassword = { username: 'robertShort', password: 'bobby21' };
     describe('POST /users/register', () => {
-      let tooShortResponse;
+      let tooShortSuccess, tooShortResponse;
       beforeAll(async() => {
         const successResponse = await axios.post(`${API_URL}/api/users/register`, newUser);
         registeredUser = successResponse.data.user;
-        tooShortResponse = await axios.post(`${API_URL}/api/users/register`, newUserShortPassword);
+        try {
+          tooShortSuccess = await axios.post(`${API_URL}/api/users/register`, newUserShortPassword);
+        } catch(err) {
+          tooShortResponse = err.response;
+        }
       })
       it('Creates a new user.', () => {
         expect(typeof registeredUser).toEqual('object');
@@ -54,11 +58,18 @@ describe('API', () => {
         expect(await bcrypt.compare(newUser.password, queriedUser.password)).toBe(true);
       });
       it('Throws errors for duplicate username', async () => {
-        const duplicateResponse = await axios.post(`${API_URL}/api/users/register`, newUser);
-        expect(duplicateResponse.data.message).toBe('A user by that username already exists');
+        let duplicateSuccess, duplicateErrResp;
+        try {
+          duplicateSuccess = await axios.post(`${API_URL}/api/users/register`, newUser);
+        } catch (err) {
+          duplicateErrResp = err.response;
+        }
+        expect(duplicateSuccess).toBeFalsy();
+        expect(duplicateErrResp.data).toBeTruthy();
       });
       it('Throws errors for password-too-short.', async () => {
-        expect(tooShortResponse.data.message).toBe('Password Too Short!');
+        expect(tooShortSuccess).toBeFalsy();
+        expect(tooShortResponse.data).toBeTruthy();
       });
     });
     describe('POST /users/login', () => {
@@ -82,9 +93,14 @@ describe('API', () => {
         expect(data.username).toBe(registeredUser.username);
       });
       it('rejects requests with no valid token', async () => {
-        const {data} = await axios.get(`${API_URL}/api/users/me`);
-        expect(data.username).toBeFalsy();
-        expect(data.message).toBe('You must be logged in to perform this action');
+        let noTokenResp, noTokenErrResp;
+        try {
+          noTokenResp = await axios.get(`${API_URL}/api/users/me`);
+        } catch (err) {
+          noTokenErrResp = err.response;
+        }
+        expect(noTokenResp).toBeFalsy();
+        expect(noTokenErrResp.data).toBeTruthy();
       });
     });
     describe('GET /users/:username/routines', () => {
@@ -163,8 +179,14 @@ describe('API', () => {
         routineToCreateAndUpdate = respondedRoutine;
       });
       it('Requires logged in user', async () => {
-        const {data: respondedRoutine} = await axios.post(`${API_URL}/api/routines`, routineToFail);
-        expect(respondedRoutine.description).toBeFalsy();
+        let noLoggedInUserResp, noLoggedInUserErrResp;
+        try {
+          noLoggedInUserResp = await axios.post(`${API_URL}/api/routines`, routineToFail);
+        } catch(err) {
+          noLoggedInUserErrResp = err.response;
+        }
+        expect(noLoggedInUserResp).toBeFalsy();
+        expect(noLoggedInUserErrResp.data).toBeTruthy();
       });
     });
     describe('PATCH /routines/:routineId (**)', async () => {
@@ -195,9 +217,14 @@ describe('API', () => {
         routineActivityToCreateAndUpdate = respondedRoutineActivity;
       });
       it('Prevents duplication on (routineId, activityId) pair.', async () => {
-        const {data: respondedRoutineActivity} = await axios.post(`${API_URL}/api/routines/${newRoutine.id}/activities`, routineActivityToCreateAndUpdate, { headers: {'Authorization': `Bearer ${token}`} });
-        expect(respondedRoutineActivity && respondedRoutineActivity.routineId).toBeFalsy();
-        expect(respondedRoutineActivity && respondedRoutineActivity.activityId).toBeFalsy();
+        let duplicateIds, duplicateIdsResp;
+        try {
+          duplicateIds = await axios.post(`${API_URL}/api/routines/${newRoutine.id}/activities`, routineActivityToCreateAndUpdate, { headers: {'Authorization': `Bearer ${token}`} });
+        } catch(err) {
+          duplicateIdsResp = err.response;
+        }
+        expect(duplicateIds).toBeFalsy();
+        expect(duplicateIdsResp.data).toBeTruthy();
       });
     });
   });
@@ -211,8 +238,14 @@ describe('API', () => {
         routineActivityToCreateAndUpdate = respondedRoutineActivity;
       });
       it('Logged in user should be the owner of the modified object.', async () => {
-        const {data: respondedRoutineActivity} = await axios.patch(`${API_URL}/api/routine_activities/${4}`, newRoutineActivityData, { headers: {'Authorization': `Bearer ${token}`} });
-        expect(respondedRoutineActivity.count).toBeFalsy();
+        let respondedRoutineActivity, errRespondedRoutineActivity;
+        try {
+          respondedRoutineActivity = await axios.patch(`${API_URL}/api/routine_activities/${4}`, newRoutineActivityData, { headers: {'Authorization': `Bearer ${token}`} });
+        } catch(err) {
+          errRespondedRoutineActivity = err.response;
+        }
+        expect(respondedRoutineActivity).toBeFalsy();
+        expect(errRespondedRoutineActivity.data).toBeTruthy();
       });
     });
     describe('DELETE /routine_activities/:routineActivityId (**)', async () => {
@@ -225,8 +258,14 @@ describe('API', () => {
         expect(shouldBeDeleted).toBeFalsy();
       });
       it('Logged in user should be the owner of the modified object.', async () => {
-        const {data: respondedRoutineActivity} = await axios.delete(`${API_URL}/api/routine_activities/${4}`, { headers: {'Authorization': `Bearer ${token}`} });
-        expect(respondedRoutineActivity.count).toBeFalsy();
+        let respondedRoutineActivity, errRespondedRoutineActivity;
+        try {
+          respondedRoutineActivity = await axios.delete(`${API_URL}/api/routine_activities/${4}`, { headers: {'Authorization': `Bearer ${token}`} });
+        } catch(err) {
+          errRespondedRoutineActivity = err.response;
+        }
+        expect(respondedRoutineActivity).toBeFalsy();
+        expect(errRespondedRoutineActivity.data).toBeTruthy();
       });
     });
   });
