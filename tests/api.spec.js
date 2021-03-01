@@ -21,6 +21,9 @@ describe('API', () => {
   beforeAll(async() => {
     await rebuildDB();
   })
+  afterAll(async() => {
+    await client.end();
+  })
   it('responds to a request at /api/health with a message specifying it is healthy', async () => {
     const res = await axios.get(`${API_URL}/api/health`);
 
