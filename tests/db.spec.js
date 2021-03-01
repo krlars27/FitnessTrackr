@@ -15,6 +15,9 @@ describe('Database', () => {
   beforeAll(async() => {
     await rebuildDB();
   })
+  afterAll(async() => {
+    await client.end();
+  })
   describe('Users', () => {
     let userToCreateAndUpdate, queriedUser;
     let userCredentials = {username: 'billybob', password: 'bobbybadboy'};
