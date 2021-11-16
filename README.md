@@ -26,9 +26,9 @@ To run all the tests in watch mode (re-runs on code update), run
 ### DB Methods
 
 
-    npm run test:watch db.spec
+    npm run test:watch db
 
 ### API Routes (server must be running for these to pass)
 
-    npm run test:watch api.spec
+    npm run test:watch api
 
