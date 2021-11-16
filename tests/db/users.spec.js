@@ -122,7 +122,7 @@ describe("DB Users", () => {
       const fakeUser = await createFakeUser("Jacob");
       const user = await getUserById(fakeUser.id);
       expect(user).toBeTruthy();
-      expect(user.id).toBe(user.id);
+      expect(user.id).toBe(fakeUser.id);
     });
     
     it("does not return the password", async () => {
