@@ -1,36 +1,50 @@
 {
   "name": "fitnesstrackr",
   "version": "1.0.0",
-  "description": "an API for our new fitness empire, FitnessTrac.kr, using node, express, and postgresql",
-  "main": "index.js",
+  "description": "an API for our new fitness empire, FitnessTrac.kr, using node, express, postgresql, and jQuery",
+  "main": "server.js",
   "scripts": {
     "seed:dev": "nodemon ./db/seed.js",
     "seed": "node ./db/seed.js",
-    "start:dev": "nodemon index.js",
-    "start": "node index.js",
+    "start:dev": "nodemon server.js",
+    "start": "node server.js",
     "test": "jest --runInBand",
-    "test:watch": "jest --watchAll --runInBand"
+    "test:watch": "jest --runInBand --watchAll"
   },
   "repository": {
-    "type": "git"
+    "type": "git",
+    "url": "git+https://github.com/wallacepreston/fitnesstrackr.git"
   },
   "keywords": [
     "node",
     "express",
     "postgresql",
+    "jquery",
     "javascript"
   ],
-  "author": "Fullstack Academy",
+  "author": "Preston Wallace",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wallacepreston/fitnesstrackr/issues"
+  },
+  "homepage": "https://github.com/wallacepreston/fitnesstrackr#readme",
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "eslint": "^8.2.0",
+    "eslint-plugin-jest": "^25.2.4",
+    "nodemon": "^2.0.4",
+    "supertest": "^6.1.6"
   },
   "dependencies": {
     "axios": "^0.19.2",
     "bcrypt": "^4.0.1",
+    "chalk": "^4.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "faker": "^4.1.0",
     "jest": "^26.0.1",
     "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
     "pg": "^8.2.1"
   }
 }

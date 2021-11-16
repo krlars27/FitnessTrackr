@@ -155,7 +155,6 @@ async function createInitialRoutineActivities() {
 
 async function rebuildDB() {
   try {
-    client.connect();
     await dropTables();
     await createTables();
     await createInitialUsers();
@@ -169,5 +168,7 @@ async function rebuildDB() {
 }
 
 module.exports = {
-  rebuildDB
+  rebuildDB,
+  dropTables,
+  createTables
 };
