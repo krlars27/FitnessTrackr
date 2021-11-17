@@ -1,12 +1,12 @@
-const faker = require("faker")
+const faker = require("faker");
 const {
   createUser,
   createRoutine,
   createActivity,
   addActivityToRoutine,
-} = require("../db")
-const jwt = require("jsonwebtoken")
-const { JWT_SECRET = "neverTell" } = process.env
+} = require("../db");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET = "neverTell" } = process.env;
 // This contains helper functions which create fake entries in the database
 // for the tests.
 
@@ -14,63 +14,72 @@ const createFakeUser = async (username = faker.random.uuid()) => {
   const fakeUserData = {
     username,
     password: faker.internet.password(),
+  };
+  const user = await createUser(fakeUserData);
+  if (!user) {
+    throw new Error("createUser didn't return a user");
   }
-  return createUser(fakeUserData)
-}
+  return user;
+};
 
 const createFakeUserWithToken = async (username) => {
-  const fakeUser = await createFakeUser(username)
+  const fakeUser = await createFakeUser(username);
 
   const token = jwt.sign(
     { id: fakeUser.id, username: fakeUser.username },
     JWT_SECRET,
     { expiresIn: "1w" }
-  )
+  );
 
   return {
     fakeUser,
     token,
-  }
-}
+  };
+};
 
 const createFakeUserWithRoutines = async (username, numRoutines = 1) => {
-  const { fakeUser, token } = await createFakeUserWithToken(username)
-  const fakeRoutines = []
+  const { fakeUser, token } = await createFakeUserWithToken(username);
+  const fakeRoutines = [];
   for (let i = 0; i < numRoutines; i++) {
-    fakeRoutines.push(await createFakePublicRoutine(fakeUser.id))
+    fakeRoutines.push(await createFakePublicRoutine(fakeUser.id));
   }
   return {
     fakeUser,
     token,
     fakeRoutines,
-  }
-}
+  };
+};
 
 const createFakeUserWithRoutinesAndActivities = async (username, numRoutines = 1) => {
-  const { fakeUser, token } = await createFakeUserWithToken(username)
-  const fakeRoutines = []
-  const fakePrivateRoutines = []
-  const fakeActivities = []
-  const fakeRoutineActivities = []
-  const fakePrivateRoutineActivities = []
+  const { fakeUser, token } = await createFakeUserWithToken(username);
+  const fakeRoutines = [];
+  const fakePrivateRoutines = [];
+  const fakeActivities = [];
+  const fakeRoutineActivities = [];
+  const fakePrivateRoutineActivities = [];
 
   for (let i = 0; i < numRoutines; i++) {
-    const fakeRoutine = await createFakePublicRoutine(fakeUser.id)
-    const fakePrivateRoutine = await createFakePrivateRoutine(fakeUser.id)
-    const fakeActivity = await createFakeActivity()
-    fakeRoutines.push(fakeRoutine)
-    fakePrivateRoutines.push(fakePrivateRoutine)
-    fakeActivities.push(fakeActivity)
+    const fakeRoutine = await createFakePublicRoutine(fakeUser.id);
+    const fakePrivateRoutine = await createFakePrivateRoutine(fakeUser.id);
+    const fakeActivity = await createFakeActivity();
+    const fakeActivity2 = await createFakeActivity();
+    fakeRoutines.push(fakeRoutine);
+    fakePrivateRoutines.push(fakePrivateRoutine);
+    fakeActivities.push(fakeActivity, fakeActivity2);
     const fakeRoutineActivity = await createFakeRoutineActivity(
       fakeRoutine.id,
       fakeActivity.id
-    )
+    );
+    const fakeRoutineActivity2 = await createFakeRoutineActivity(
+      fakeRoutine.id,
+      fakeActivity2.id
+    );
     const fakePrivateRoutineActivity = await createFakeRoutineActivity(
       fakePrivateRoutine.id,
       fakeActivity.id
-    )
-    fakeRoutineActivities.push(fakeRoutineActivity)
-    fakePrivateRoutineActivities.push(fakePrivateRoutineActivity)
+    );
+    fakeRoutineActivities.push(fakeRoutineActivity, fakeRoutineActivity2);
+    fakePrivateRoutineActivities.push(fakePrivateRoutineActivity);
   }
 
   return {
@@ -81,8 +90,8 @@ const createFakeUserWithRoutinesAndActivities = async (username, numRoutines = 1
     fakeActivities,
     fakeRoutineActivities,
     fakePrivateRoutineActivities,
-  }
-}
+  };
+};
 
 const createFakePublicRoutine = async (
   creatorId,
@@ -90,17 +99,20 @@ const createFakePublicRoutine = async (
   goal = faker.random.uuid()
 ) => {
   if (!creatorId) {
-    const fakeUser = await createFakeUser()
-    creatorId = fakeUser.id
+    const fakeUser = await createFakeUser();
+    creatorId = fakeUser.id;
   }
   const routine = await createRoutine({
     creatorId,
     isPublic: true,
     name,
     goal,
-  })
-  return routine
-}
+  });
+  if (!routine) {
+    throw new Error("createRoutine didn't return a routine");
+  }
+  return routine;
+};
 
 const createFakePrivateRoutine = async (
   creatorId,
@@ -108,17 +120,20 @@ const createFakePrivateRoutine = async (
   goal = faker.random.uuid()
 ) => {
   if (!creatorId) {
-    const fakeUser = await createFakeUser()
-    creatorId = fakeUser.id
+    const fakeUser = await createFakeUser();
+    creatorId = fakeUser.id;
   }
   const routine = await createRoutine({
     creatorId,
     isPublic: false,
     name,
     goal,
-  })
-  return routine
-}
+  });
+  if (!routine) {
+    throw new Error("createRoutine didn't return a routine");
+  }
+  return routine;
+};
 
 const createFakeActivity = async (
   name = faker.random.uuid(),
@@ -127,27 +142,33 @@ const createFakeActivity = async (
   const activity = await createActivity({
     name,
     description
-  })
-  return activity
-}
+  });
+  if (!activity) {
+    throw new Error("createActivity didn't return an activity");
+  }
+  return activity;
+};
 
 const createFakeRoutineActivity = async (routineId, activityId) => {
   if (!routineId) {
-    const routine = await createFakePublicRoutine()
-    routineId = routine.id
+    const routine = await createFakePublicRoutine();
+    routineId = routine.id;
   }
   if (!activityId) {
-    const activity = await createFakeActivity()
-    activityId = activity.id
+    const activity = await createFakeActivity();
+    activityId = activity.id;
   }
   const fakeRoutineActivity = await addActivityToRoutine({
     activityId,
     routineId,
     count: faker.random.number(),
     duration: faker.random.number(),
-  })
-  return fakeRoutineActivity
-}
+  });
+  if (!fakeRoutineActivity) {
+    throw new Error("addActivityToRoutine didn't return a routineActivity");
+  }
+  return fakeRoutineActivity;
+};
 
 module.exports = {
   createFakeUser,
@@ -158,4 +179,4 @@ module.exports = {
   createFakeActivity,
   createFakeRoutineActivity,
   createFakeUserWithRoutinesAndActivities,
-}
+};

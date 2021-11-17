@@ -1,135 +1,166 @@
-/* 
-
-DO NOT CHANGE THIS FILE
-
-*/
-require("dotenv").config();
-const bcrypt = require("bcrypt");
 const faker = require("faker");
-const client = require("../../db/client");
 const {
-  getUserById,
   createUser,
-  getUser,
-} = require("../../db");
-const { createFakeUser } = require("../helpers");
+  createRoutine,
+  createActivity,
+  addActivityToRoutine,
+} = require("../db");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET = "neverTell" } = process.env;
+// This contains helper functions which create fake entries in the database
+// for the tests.
 
-describe("DB Users", () => {
+const createFakeUser = async (username = faker.random.uuid()) => {
+  const fakeUserData = {
+    username,
+    password: faker.internet.password(),
+  };
+  return createUser(fakeUserData);
+};
 
+const createFakeUserWithToken = async (username) => {
+  const fakeUser = await createFakeUser(username);
 
-  describe("createUser({ username, password })", () => {
+  const token = jwt.sign(
+    { id: fakeUser.id, username: fakeUser.username },
+    JWT_SECRET,
+    { expiresIn: "1w" }
+  );
 
-    it("Creates the user", async () => {
-      const fakeUserData = {
-        username: "Horace",
-        password: faker.internet.password(),
-      }
+  return {
+    fakeUser,
+    token,
+  };
+};
 
-      const user = await createUser(fakeUserData);
+const createFakeUserWithRoutines = async (username, numRoutines = 1) => {
+  const { fakeUser, token } = await createFakeUserWithToken(username);
+  const fakeRoutines = [];
+  for (let i = 0; i < numRoutines; i++) {
+    fakeRoutines.push(await createFakePublicRoutine(fakeUser.id));
+  }
+  return {
+    fakeUser,
+    token,
+    fakeRoutines,
+  };
+};
 
-      const queriedUser = await getUserById(user.id);
+const createFakeUserWithRoutinesAndActivities = async (username, numRoutines = 1) => {
+  const { fakeUser, token } = await createFakeUserWithToken(username);
+  const fakeRoutines = [];
+  const fakePrivateRoutines = [];
+  const fakeActivities = [];
+  const fakeRoutineActivities = [];
+  const fakePrivateRoutineActivities = [];
 
-      expect(user.username).toBe(fakeUserData.username);
-      expect(queriedUser.username).toBe(fakeUserData.username);
-    });
+  for (let i = 0; i < numRoutines; i++) {
+    const fakeRoutine = await createFakePublicRoutine(fakeUser.id);
+    const fakePrivateRoutine = await createFakePrivateRoutine(fakeUser.id);
+    const fakeActivity = await createFakeActivity();
+    const fakeActivity2 = await createFakeActivity();
+    fakeRoutines.push(fakeRoutine);
+    fakePrivateRoutines.push(fakePrivateRoutine);
+    fakeActivities.push(fakeActivity, fakeActivity2);
+    const fakeRoutineActivity = await createFakeRoutineActivity(
+      fakeRoutine.id,
+      fakeActivity.id
+    );
+    const fakeRoutineActivity2 = await createFakeRoutineActivity(
+      fakeRoutine.id,
+      fakeActivity2.id
+    );
+    const fakePrivateRoutineActivity = await createFakeRoutineActivity(
+      fakePrivateRoutine.id,
+      fakeActivity.id
+    );
+    fakeRoutineActivities.push(fakeRoutineActivity, fakeRoutineActivity2);
+    fakePrivateRoutineActivities.push(fakePrivateRoutineActivity);
+  }
 
-    it("EXTRA CREDIT: Does not store plaintext password in the database", async () => {
-      const fakeUserData = {
-        username: "Harry",
-        password: faker.internet.password(),
-      }
-      const user = await createUser(fakeUserData);
-      const queriedUser = await getUserById(user.id);
-      expect(queriedUser.password).not.toBe(fakeUserData.password);
-    });
+  return {
+    fakeUser,
+    token,
+    fakeRoutines,
+    fakePrivateRoutines,
+    fakeActivities,
+    fakeRoutineActivities,
+    fakePrivateRoutineActivities,
+  };
+};
 
-    it("EXTRA CREDIT: Hashes the password (salted 10 times) before storing it to the database", async () => {
-      const fakeUserData = {
-        username: "Nicky",
-        password: faker.internet.password(),
-      };
-      const user = await createUser(fakeUserData);
-
-      const {rows: [queriedUser]} = await client.query(
-        `
-        SELECT * from users
-        WHERE id = $1
-        `,
-        [user.id]
-      );
-
-      const hashedVersion = await bcrypt.compare(
-        fakeUserData.password,
-        queriedUser.password
-      );
-      expect(hashedVersion).toBe(true);
-    });
-
-    it("Does NOT return the password", async () => {
-      const fakeUserData = {
-        username: faker.internet.userName(),
-        password: faker.internet.password(),
-      };
-      const user = await createUser(fakeUserData);
-      expect(user.password).toBeFalsy();
-    });
-
+const createFakePublicRoutine = async (
+  creatorId,
+  name = faker.random.uuid(),
+  goal = faker.random.uuid()
+) => {
+  if (!creatorId) {
+    const fakeUser = await createFakeUser();
+    creatorId = fakeUser.id;
+  }
+  const routine = await createRoutine({
+    creatorId,
+    isPublic: true,
+    name,
+    goal,
   });
+  return routine;
+};
 
-  describe("getUser({ username, password })", () => {
-
-    it("returns the user when the password verifies", async () => {
-      const fakeUserData = {
-        username: "Nicole",
-        password: faker.internet.password(),
-      };
-      await createUser(fakeUserData);
-
-      const user = await getUser(fakeUserData);
-      expect(user).toBeTruthy();
-      expect(user.username).toBe(fakeUserData.username);
-    });
-
-    it("Does not return the user if the password doesn't verify", async () => {
-      const fakeUserData = {
-        username: "Issac",
-        password: faker.internet.password(),
-      };
-      await createUser(fakeUserData);
-
-      const user = await getUser({
-        username: "Issac",
-        password: "Bad Password"
-      });
-
-      expect(user).toBeFalsy();
-    });
-
-    it("Does NOT return the password", async () => {
-      const fakeUserData = {
-        username: "Michael",
-        password: faker.internet.password(),
-      };
-      await createUser(fakeUserData);
-      const user = await getUser(fakeUserData);
-      expect(user.password).toBeFalsy();
-    });
-
+const createFakePrivateRoutine = async (
+  creatorId,
+  name = faker.random.uuid(),
+  goal = faker.random.uuid()
+) => {
+  if (!creatorId) {
+    const fakeUser = await createFakeUser();
+    creatorId = fakeUser.id;
+  }
+  const routine = await createRoutine({
+    creatorId,
+    isPublic: false,
+    name,
+    goal,
   });
-  describe("getUserById", () => {
+  return routine;
+};
 
-    it("Gets a user based on the user Id", async () => {
-      const fakeUser = await createFakeUser("Jacob");
-      const user = await getUserById(fakeUser.id);
-      expect(user).toBeTruthy();
-      expect(user.id).toBe(fakeUser.id);
-    });
-    
-    it("does not return the password", async () => {
-      const fakeUser = await createFakeUser("Jonathan");
-      const user = await getUserById(fakeUser.id);
-      expect(user.password).toBeFalsy();
-    });
-
+const createFakeActivity = async (
+  name = faker.random.uuid(),
+  description = faker.random.uuid()
+) => {
+  const activity = await createActivity({
+    name,
+    description
   });
-});
+  return activity;
+};
+
+const createFakeRoutineActivity = async (routineId, activityId) => {
+  if (!routineId) {
+    const routine = await createFakePublicRoutine();
+    routineId = routine.id;
+  }
+  if (!activityId) {
+    const activity = await createFakeActivity();
+    activityId = activity.id;
+  }
+  const fakeRoutineActivity = await addActivityToRoutine({
+    activityId,
+    routineId,
+    count: faker.random.number(),
+    duration: faker.random.number(),
+  });
+  return fakeRoutineActivity;
+};
+
+module.exports = {
+  createFakeUser,
+  createFakeUserWithToken,
+  createFakeUserWithRoutines,
+  createFakePublicRoutine,
+  createFakePrivateRoutine,
+  createFakeActivity,
+  createFakeRoutineActivity,
+  createFakeUserWithRoutinesAndActivities,
+};
