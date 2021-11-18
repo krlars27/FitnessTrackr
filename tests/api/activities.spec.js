@@ -12,6 +12,13 @@ const {
   createFakeActivity,
   createFakeRoutineActivity,
 } = require("../helpers")
+const {
+  expectToBeError,
+  expectNotToBeError,
+  expectToHaveErrorMessage,
+} = require("../expectHelpers")
+
+const { ActivityExistsError, ActivityNotFoundError } = require("../../errors")
 
 const { arrayContaining } = expect
 
@@ -25,8 +32,10 @@ describe("/api/activities", () => {
         "Running",
         "Let's Go for a jog"
       )
-      
+
       const response = await request(app).get("/api/activities")
+
+      expectNotToBeError(response.body)
 
       expect(response.body).toEqual(arrayContaining([fakeActivity]))
     })
@@ -45,9 +54,10 @@ describe("/api/activities", () => {
         .post("/api/activities")
         .send(activityData)
         .set("Authorization", `Bearer ${token}`)
-        .expect(200)
 
-      expect(response.body).toEqual(expect.objectContaining(activityData))
+      expectNotToBeError(response.body)
+
+      expect(response.body).toMatchObject(activityData)
     })
 
     it("responds with an error when a activity already exists with the same name", async () => {
@@ -64,13 +74,11 @@ describe("/api/activities", () => {
         .post("/api/activities")
         .send(activityData)
         .set("Authorization", `Bearer ${token}`)
-        .expect(500)
 
-      expect(response.body).toEqual({
-        name: expect.any(String),
-        message: expect.any(String),
-        error: expect.any(String),
-      })
+      expectToHaveErrorMessage(
+        response.body,
+        ActivityExistsError(activityData.name)
+      )
     })
   })
 
@@ -92,6 +100,8 @@ describe("/api/activities", () => {
         .set("Authorization", `Bearer ${token}`)
         .send(newActivityData)
 
+      expectNotToBeError(response.body)
+
       expect(response.body).toEqual({
         id: expect.any(Number),
         ...newActivityData,
@@ -110,19 +120,20 @@ describe("/api/activities", () => {
         .patch(`/api/activities/10000`)
         .set("Authorization", `Bearer ${token}`)
         .send(newActivityData)
-        .expect(500)
 
-      expect(response.body).toEqual({
-        name: expect.any(String),
-        message: expect.any(String),
-        error: expect.any(String),
-      })
+      expectToHaveErrorMessage(response.body, ActivityNotFoundError(10000))
     })
 
     it("returns an error when changing an activity to have the name of an existing activity", async () => {
       const { token } = await createFakeUserWithToken("Jane")
-      const fakeActivity = await createFakeActivity("Beat Saber", "VR is good exercise")
-      const secondFakeActivity = await createFakeActivity("Aerobics", "Good for the heart")
+      const fakeActivity = await createFakeActivity(
+        "Beat Saber",
+        "VR is good exercise"
+      )
+      const secondFakeActivity = await createFakeActivity(
+        "Aerobics",
+        "Good for the heart"
+      )
 
       const newActivityData = {
         name: secondFakeActivity.name,
@@ -133,21 +144,18 @@ describe("/api/activities", () => {
         .patch(`/api/activities/${fakeActivity.id}`)
         .set("Authorization", `Bearer ${token}`)
         .send(newActivityData)
-        .expect(500)
 
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          name: expect.any(String),
-          message: expect.any(String),
-          error: expect.any(String),
-        })
+      expectToHaveErrorMessage(
+        response.body,
+        ActivityExistsError(secondFakeActivity.name)
       )
+      expectToBeError(response.body)
     })
   })
 
   describe("GET /api/activities/:activityId/routines", () => {
     it("Get a list of all public routines which feature that activity", async () => {
-      const { fakeRoutines } = await createFakeUserWithRoutines("Allen");
+      const { fakeRoutines } = await createFakeUserWithRoutines("Allen")
       const fakeActivity = await createFakeActivity(
         "Weight Lifting",
         "30 lbs for 20 reps"
@@ -162,6 +170,8 @@ describe("/api/activities", () => {
         `/api/activities/${fakeActivity.id}/routines`
       )
 
+      expectNotToBeError(response.body)
+
       // Get the routines from the DB Directly
       const routinesFromDB = await getPublicRoutinesByActivity(fakeActivity)
 
@@ -169,14 +179,9 @@ describe("/api/activities", () => {
     })
 
     it("Should return an error when you ask for an activity that does not exist", async () => {
-      const response = await request(app)
-        .get("/api/activities/10000/routines")
-        .expect(500)
-      expect(response.body).toEqual({
-          name: expect.any(String),
-          message: expect.any(String),
-          error: expect.any(String),
-      })
+      const response = await request(app).get("/api/activities/10000/routines")
+
+      expectToHaveErrorMessage(response.body, ActivityNotFoundError(10000))
     })
   })
 })
