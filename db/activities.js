@@ -13,22 +13,23 @@ async function getActivityByName(name) {
 
 }
 
+// select and return an array of all activities
 async function attachActivitiesToRoutines(routines) {
 }
 
-// select and return an array of all activities
-async function createActivity({ name, description }) {
-
-}
-
 // return the new activity
-async function updateActivity({ id, ...fields }) {
+async function createActivity({ name, description }) {
 
 }
 
 // don't try to update the id
 // do update the name and description
 // return the updated activity
+async function updateActivity({ id, ...fields }) {
+
+}
+
+
 module.exports = {
   getAllActivities,
   getActivityById,
