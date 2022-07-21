@@ -151,8 +151,8 @@ describe("DB Routines", () => {
       const routines = await getAllRoutines();
       const routine = routines.find(routine => routine.id === fakeRoutine.id);
       const activity = routine.activities.find(activity => activity.id === fakeActivity.id);
-      expect(activity.duration).toEqual(fakeRoutineActivity.duration);
-      expect(activity.count).toEqual(fakeRoutineActivity.count);
+      expect(activity.duration).toEqual(fakeRoutineActivity[0].duration);
+      expect(activity.count).toEqual(fakeRoutineActivity[0].count);
     });
 
     it("includes the routineId and routineActivityId on activities", async () => {
@@ -160,7 +160,7 @@ describe("DB Routines", () => {
       const routine = routines.find(routine => routine.id === fakeRoutine.id);
       const activity = routine.activities.find(activity => activity.id === fakeActivity.id);
       expect(activity.routineId).toEqual(fakeRoutine.id);
-      expect(activity.routineActivityId).toEqual(fakeRoutineActivity.id);
+      expect(activity.routineActivityId).toEqual(fakeRoutineActivity[0].id);
     });
   });
 
