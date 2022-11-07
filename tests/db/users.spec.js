@@ -26,9 +26,7 @@ describe("DB Users", () => {
       };
 
       const user = await createUser(fakeUserData);
-
       const queriedUser = await getUserById(user.id);
-
       expect(user.username).toBe(fakeUserData.username);
       expect(queriedUser.username).toBe(fakeUserData.username);
     });
