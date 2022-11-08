@@ -16,7 +16,7 @@ const { createFakeActivity } = require("../helpers");
 
 describe("DB Activities", () => {
 
-  xdescribe("getAllActivities", () => {
+  describe("getAllActivities", () => {
     it("selects and returns an array of all activities", async () => {
       await createFakeActivity("Sit ups", "Do 100 reps");
       const activities = await getAllActivities();
@@ -39,7 +39,7 @@ describe("DB Activities", () => {
     });
   });
 
-  xdescribe("getActivityByName", () => {
+  describe("getActivityByName", () => {
     it("gets an activity by it's name", async () => {
       const fakeActivity = await createFakeActivity("Power Walking", "At the mall");
       const activity = await getActivityByName(fakeActivity.name);
@@ -59,7 +59,7 @@ describe("DB Activities", () => {
     });
   });
 
-  xdescribe("updateActivity", () => {
+  describe("updateActivity", () => {
     it("Updates name without affecting the ID. Returns the updated Activity.", async () => {
       const fakeActivity = await createFakeActivity("Baseball", "Run the bases");
       const name = "Softball";
