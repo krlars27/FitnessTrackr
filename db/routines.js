@@ -41,15 +41,67 @@ async function getAllRoutines() {
 }
 
 async function getAllRoutinesByUser({username}) {
+  try {
+  
+    const { rows } = await client.query(`
+    SELECT routines.*, users.username AS "creatorName" 
+    FROM routines
+    JOIN users ON routines."creatorId" = users.id
+    WHERE "creatorId" IN (SELECT id FROM users WHERE username = '${username}')
+    ;`);
+    // console.log(rows)
+    return attachActivitiesToRoutines(rows);
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function getPublicRoutinesByUser({username}) {
+  try {
+  
+    const { rows } = await client.query(`
+    SELECT routines.*, users.username AS "creatorName" 
+    FROM routines
+    JOIN users ON routines."creatorId" = users.id
+    WHERE "isPublic" = TRUE AND "creatorId" IN (SELECT id FROM users WHERE username = '${username}')
+    ;`);
+    // console.log(rows)
+    return attachActivitiesToRoutines(rows);
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function getAllPublicRoutines() {
+  try {
+  
+    const { rows } = await client.query(`
+    SELECT routines.*, users.username AS "creatorName" 
+    FROM routines
+    JOIN users ON routines."creatorId" = users.id
+    WHERE "isPublic" = TRUE
+    ;`);
+    // console.log(rows)
+    return attachActivitiesToRoutines(rows);
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function getPublicRoutinesByActivity({id}) {
+  try {
+  
+    const { rows } = await client.query(`
+    SELECT routines.*, users.username AS "creatorName" 
+    FROM routines
+    JOIN activities ON routines."creatorId" = activities.id
+    WHERE "isPublic" = TRUE AND "creatorId" IN (SELECT id FROM activities WHERE id = '${id}')
+    ;`);
+    // console.log(rows)
+    return attachActivitiesToRoutines(rows);
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function createRoutine({creatorId, isPublic, name, goal}) {
