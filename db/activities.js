@@ -6,7 +6,14 @@ async function getAllActivities() {
 }
 
 async function getActivityById(id) {
-  
+  try {
+    const {
+      rows: [activity],
+    } = await client.query(`SELECT * FROM users WHERE id=${id}`);
+    return activity
+  }catch (error){
+    console.log(error)
+   }
 }
 
 async function getActivityByName(name) {
