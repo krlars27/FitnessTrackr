@@ -382,7 +382,7 @@ describe("DB Routines", () => {
     });
   });
 
-  describe("updateRoutine", () => {
+  xdescribe("updateRoutine", () => {
     it("Returns the updated routine", async () => {
       const fakeRoutine = await createFakePublicRoutine();
 
@@ -427,7 +427,7 @@ describe("DB Routines", () => {
     });
   });
 
-  xdescribe("destroyRoutine", () => {
+  describe("destroyRoutine", () => {
     it("removes routine from database", async () => {
       const fakeRoutine = await createFakePublicRoutine();
       await destroyRoutine(fakeRoutine.id);
