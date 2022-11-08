@@ -14,7 +14,7 @@ const {
 } = require("../../db");
 const { createFakeUser } = require("../helpers");
 
-xdescribe("DB Users", () => {
+describe("DB Users", () => {
 
 
   describe("createUser({ username, password })", () => {
@@ -41,7 +41,7 @@ xdescribe("DB Users", () => {
       expect(queriedUser.password).not.toBe(fakeUserData.password);
     });
 
-    xit("EXTRA CREDIT: Hashes the password (salted 10 times) before storing it to the database", async () => {
+    it("EXTRA CREDIT: Hashes the password (salted 10 times) before storing it to the database", async () => {
       const fakeUserData = {
         username: "Nicky",
         password: faker.internet.password(),
