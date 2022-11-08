@@ -87,7 +87,7 @@ function expectRoutinesNotToContainDuplicates(routines, fakeRoutine) {
 
 // Tests start here
 
-xdescribe("DB Routines", () => {
+describe("DB Routines", () => {
   let
     fakeUser,
     fakeRoutine,
@@ -164,7 +164,7 @@ xdescribe("DB Routines", () => {
     });
   });
 
-  describe("getAllPublicRoutines", () => {
+  xdescribe("getAllPublicRoutines", () => {
 
     it("should include the public routine", async () => {
       const routines = await getAllPublicRoutines();
@@ -211,7 +211,7 @@ xdescribe("DB Routines", () => {
     });
   });
 
-  describe("getAllRoutinesByUser", () => {
+  xdescribe("getAllRoutinesByUser", () => {
 
     it("should get the public routine for the user", async () => {
       const routines = await getAllRoutinesByUser(fakeUser);
@@ -264,7 +264,7 @@ xdescribe("DB Routines", () => {
     });
   });
 
-  describe("getPublicRoutinesByUser", () => {
+  xdescribe("getPublicRoutinesByUser", () => {
 
     it("should include the public routine", async () => {
       const routines = await getPublicRoutinesByUser(fakeUser);
@@ -312,7 +312,7 @@ xdescribe("DB Routines", () => {
     });
   });
 
-  describe("getPublicRoutinesByActivity", () => {
+  xdescribe("getPublicRoutinesByActivity", () => {
 
     it("should include the public routine containing a specific activityId", async () => {
       const routines = await getPublicRoutinesByActivity(fakeActivity);
@@ -382,7 +382,7 @@ xdescribe("DB Routines", () => {
     });
   });
 
-  describe("updateRoutine", () => {
+  xdescribe("updateRoutine", () => {
     it("Returns the updated routine", async () => {
       const fakeRoutine = await createFakePublicRoutine();
 
@@ -427,7 +427,7 @@ xdescribe("DB Routines", () => {
     });
   });
 
-  describe("destroyRoutine", () => {
+  xdescribe("destroyRoutine", () => {
     it("removes routine from database", async () => {
       const fakeRoutine = await createFakePublicRoutine();
       await destroyRoutine(fakeRoutine.id);

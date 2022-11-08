@@ -14,7 +14,7 @@ const {
 } = require("../../db");
 const { createFakeActivity } = require("../helpers");
 
-describe("DB Activities", () => {
+xdescribe("DB Activities", () => {
 
   describe("getAllActivities", () => {
     it("selects and returns an array of all activities", async () => {
