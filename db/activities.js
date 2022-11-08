@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 const client = require("./client")
 
 // database functions
@@ -8,9 +9,9 @@ async function getAllActivities() {
 async function getActivityById(id) {
   try {
     const {
-      rows: [activity],
-    } = await client.query(`SELECT * FROM users WHERE id=${id}`);
-    return activity
+      rows: [activities],
+    } = await client.query(`SELECT * FROM activities WHERE id=${id}`);
+    return activities
   }catch (error){
     console.log(error)
    }
