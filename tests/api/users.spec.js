@@ -35,7 +35,7 @@ const {
   UnauthorizedError,
 } = require("../../errors")
 
-xdescribe("/api/users", () => {
+describe("/api/users", () => {
   describe("POST /api/users/register", () => {
     it("Creates a new user.", async () => {
       // Create some fake user data
@@ -133,7 +133,7 @@ xdescribe("/api/users", () => {
     })
   })
 
-  describe("POST /api/users/login", () => {
+  xdescribe("POST /api/users/login", () => {
     it("Logs in the user. Requires username and password, and verifies that hashed login password matches the saved hashed password.", async () => {
       // Create some fake user data
       const userData = {
@@ -201,7 +201,7 @@ xdescribe("/api/users", () => {
     })
   })
 
-  describe("GET /api/users/me", () => {
+  xdescribe("GET /api/users/me", () => {
     it("sends back users data if valid token is supplied in header", async () => {
       const { fakeUser, token } = await createFakeUserWithToken()
 
@@ -223,7 +223,7 @@ xdescribe("/api/users", () => {
     })
   })
 
-  describe("GET /api/users/:username/routines", () => {
+  xdescribe("GET /api/users/:username/routines", () => {
     it("Gets a list of public routines for a particular user.", async () => {
       // Create a fake user with a bunch of routines associated
       const { fakeUser, token } = await createFakeUserWithRoutines("Greg")
