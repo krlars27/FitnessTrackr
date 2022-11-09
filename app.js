@@ -8,8 +8,8 @@ const apiRouter = require('./api')
 
 // Setup your Middleware and API Router here
 app.use(express.json());
-app.use(cors);
-app.use(morgan);
+app.use(cors());
+app.use(morgan('dev'));
 app.use('/api', apiRouter);
 
 
