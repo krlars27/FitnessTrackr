@@ -14,7 +14,7 @@ const {
 } = require("../../db");
 const { createFakeUser } = require("../helpers");
 
-xdescribe("DB Users", () => {
+describe("DB Users", () => {
 
 
   describe("createUser({ username, password })", () => {
