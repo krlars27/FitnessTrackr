@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+
 const jwt = require('jsonwebtoken');
 const { getUserById } = require('../db');
 const { JWT_SECRET } = process.env;
@@ -41,19 +42,17 @@ router.use((req, res, next) => {
     next();
   });
 
-
 // GET /api/health
 router.get('/health', async (req, res, next) => {
+    console.log("helloworld")
     try {
         res.send({
             message:"I am healthy"
         });
         
     } catch (error) {
-        next(error)  
+        next(error);  
     }
-    
-    
 });
 
 // ROUTER: /api/users
