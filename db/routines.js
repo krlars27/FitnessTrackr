@@ -1,8 +1,8 @@
 /* eslint-disable no-useless-catch */
-const client = require('./client');
-const {attachActivitiesToRoutines} = require('./activities')
+const client = require("./client");
+const { attachActivitiesToRoutines } = require("./activities");
 
-async function getRoutineById(id){
+async function getRoutineById(id) {
   try {
     const {
       rows: [routine],
@@ -13,12 +13,12 @@ async function getRoutineById(id){
   }
 }
 
-async function getRoutinesWithoutActivities(){
+async function getRoutinesWithoutActivities() {
   try {
-    const {rows: routines} = await client.query(`
+    const { rows: routines } = await client.query(`
     SELECT * FROM routines`);
     // console.log(routines)
-    return routines
+    return routines;
   } catch (error) {
     throw error;
   }
@@ -26,7 +26,7 @@ async function getRoutinesWithoutActivities(){
 
 async function getAllRoutines() {
   try {
-    //AS is alias 
+    //AS is alias
     //routines.* = grabbing all from routines table
     const { rows } = await client.query(`
     SELECT routines.*, users.username AS "creatorName" 
@@ -40,9 +40,8 @@ async function getAllRoutines() {
   }
 }
 
-async function getAllRoutinesByUser({username}) {
+async function getAllRoutinesByUser({ username }) {
   try {
-  
     const { rows } = await client.query(`
     SELECT routines.*, users.username AS "creatorName" 
     FROM routines
@@ -56,9 +55,8 @@ async function getAllRoutinesByUser({username}) {
   }
 }
 
-async function getPublicRoutinesByUser({username}) {
+async function getPublicRoutinesByUser({ username }) {
   try {
-  
     const { rows } = await client.query(`
     SELECT routines.*, users.username AS "creatorName" 
     FROM routines
@@ -74,7 +72,6 @@ async function getPublicRoutinesByUser({username}) {
 
 async function getAllPublicRoutines() {
   try {
-  
     const { rows } = await client.query(`
     SELECT routines.*, users.username AS "creatorName" 
     FROM routines
@@ -88,9 +85,8 @@ async function getAllPublicRoutines() {
   }
 }
 
-async function getPublicRoutinesByActivity({id}) {
+async function getPublicRoutinesByActivity({ id }) {
   try {
-  
     const { rows } = await client.query(`
     SELECT routines.*, users.username AS "creatorName" 
     FROM routines
@@ -104,10 +100,10 @@ async function getPublicRoutinesByActivity({id}) {
   }
 }
 
-async function createRoutine({creatorId, isPublic, name, goal}) {
+async function createRoutine({ creatorId, isPublic, name, goal }) {
   try {
     const {
-      rows: [routine]
+      rows: [routine],
     } = await client.query(
       `
       INSERT INTO routines ("creatorId", "isPublic", name, goal)
@@ -115,14 +111,14 @@ async function createRoutine({creatorId, isPublic, name, goal}) {
       RETURNING *;`,
       [creatorId, isPublic, name, goal]
     );
-    // console.log(routine) 
+    // console.log(routine)
     return routine;
   } catch (error) {
     throw error;
   }
 }
 
-async function updateRoutine({id, ...fields}) {
+async function updateRoutine({ id, ...fields }) {
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}"=$${index + 1}`)
     .join(", ");
@@ -143,35 +139,33 @@ async function updateRoutine({id, ...fields}) {
     );
 
     return routines;
-    
   } catch (error) {
-     throw error;
+    throw error;
   }
-
-
 }
 
 async function destroyRoutine(id) {
-try {
-   await client.query(
-    ` DELETE 
+  try {
+    await client.query(
+      ` DELETE 
     FROM  routine_activities 
     WHERE "routineId" =$1
     ;`,
-    [id]
-    )
-  const {rows: [routine]} = await client.query(
-    ` DELETE 
+      [id]
+    );
+    const {
+      rows: [routine],
+    } = await client.query(
+      ` DELETE 
     FROM  routines 
     WHERE id =$1
     ;`,
-    [id]
-    )
-  return routine
-} catch (error) {
-  throw error;
-}
-
+      [id]
+    );
+    return routine;
+  } catch (error) {
+    throw error;
+  }
 }
 
 module.exports = {
@@ -185,4 +179,4 @@ module.exports = {
   createRoutine,
   updateRoutine,
   destroyRoutine,
-}
+};
