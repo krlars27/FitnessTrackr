@@ -163,6 +163,7 @@ async function destroyRoutine(id) {
       [id]
     );
     return routine;
+    console.log(routine)
   } catch (error) {
     throw error;
   }
