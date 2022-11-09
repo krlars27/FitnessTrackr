@@ -71,7 +71,7 @@ async function updateRoutineActivity({ id, ...fields }) {
     `,
       Object.values(fields)
     );
-
+      console.log(routine_activity)
     return routine_activity;
   } catch (error) {
     throw error;
