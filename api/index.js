@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-
 // GET /api/health
 router.get('/health', async (req, res, next) => {
     try {
@@ -10,10 +9,8 @@ router.get('/health', async (req, res, next) => {
         });
         
     } catch (error) {
-        next(error)  
+        next(error);  
     }
-    
-    
 });
 
 // ROUTER: /api/users
