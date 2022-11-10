@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 const client = require("./client");
 const bcrypt = require("bcrypt")
 
@@ -53,7 +54,7 @@ async function getUser({ username, password }) {
   // } else if(!user.password === password) {
   //   return false
   // }
-};
+}
 
 
 async function getUserById(userId) {
@@ -77,7 +78,6 @@ async function getUserByUsername(userName) {
       FROM users
       WHERE username=$1;
     `, [userName]);
-
     return user;
   } catch (error) {
     throw error;

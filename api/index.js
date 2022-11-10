@@ -44,7 +44,6 @@ router.use((req, res, next) => {
 
 // GET /api/health
 router.get('/health', async (req, res, next) => {
-    console.log("helloworld")
     try {
         res.send({
             message:"I am healthy"
@@ -73,6 +72,7 @@ router.use('/routine_activities', routineActivitiesRouter);
 
 router.use((error, req, res, next) => {
     res.send({
+      error: error.name,
       name: error.name,
       message: error.message
     });
