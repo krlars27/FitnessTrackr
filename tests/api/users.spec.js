@@ -133,7 +133,7 @@ describe("/api/users", () => {
     })
   })
 
-  describe("POST /api/users/login", () => {
+  xdescribe("POST /api/users/login", () => {
     it("Logs in the user. Requires username and password, and verifies that hashed login password matches the saved hashed password.", async () => {
       // Create some fake user data
       const userData = {
@@ -223,7 +223,7 @@ describe("/api/users", () => {
     })
   })
 
-  xdescribe("GET /api/users/:username/routines", () => {
+  describe("GET /api/users/:username/routines", () => {
     it("Gets a list of public routines for a particular user.", async () => {
       // Create a fake user with a bunch of routines associated
       const { fakeUser, token } = await createFakeUserWithRoutines("Greg")
