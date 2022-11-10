@@ -36,7 +36,7 @@ const {
 } = require("../../errors")
 
 describe("/api/users", () => {
-  describe("POST /api/users/register", () => {
+  xdescribe("POST /api/users/register", () => {
     it("Creates a new user.", async () => {
       // Create some fake user data
       const fakeUserData = {
@@ -133,7 +133,7 @@ describe("/api/users", () => {
     })
   })
 
-  xdescribe("POST /api/users/login", () => {
+  describe("POST /api/users/login", () => {
     it("Logs in the user. Requires username and password, and verifies that hashed login password matches the saved hashed password.", async () => {
       // Create some fake user data
       const userData = {
