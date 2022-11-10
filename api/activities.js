@@ -4,8 +4,6 @@ const router = express.Router();
 const { getAllActivities, createActivity } = require('../db/activities');
 const jwt = require("jsonwebtoken");
 
-const { getAllActivities, createActivity } = require("../db/activities");
-
 
 // GET /api/activities/:activityId/routines
 
