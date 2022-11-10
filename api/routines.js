@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { getAllPublicRoutines, createRoutine } = require("../db/routines");
+const { getAllPublicRoutines, createRoutine, destroyRoutine } = require("../db/routines");
 const jwt = require("jsonwebtoken");
+const { requireUser } = require('./utils')
 // GET /api/routines
 router.get("/", async (req, res, next) => {
   try {
@@ -14,11 +15,11 @@ router.get("/", async (req, res, next) => {
 });
 
 // POST /api/routines
-router.post("/", async (req, res, next) => {
-  const { creatorId, isPublic, name, goal } = req.body;
-console.log(creatorId, 'please work')
+router.post("/", requireUser, async (req, res, next) => {
+  const { isPublic, name, goal } = req.body;
+console.log(req.user)
   try {
-    const newRoutine = await createRoutine({ creatorId, isPublic, name, goal });
+    const newRoutine = await createRoutine({ creatorId:req.user.id, isPublic, name, goal });
     if (newRoutine) {
       res.send(newRoutine);
     } else {
@@ -36,6 +37,49 @@ console.log(creatorId, 'please work')
 // PATCH /api/routines/:routineId
 
 // DELETE /api/routines/:routineId
+router.delete('/:routineId', requireUser, async (req, res, next) => {
+    try {
+        const post = await destroyRoutine(req.params.postId);
+    
+        if (post && post.author.id === req.user.id) {
+          const updatedPost = await try {
+    const post = await destroyRoutine(req.params.postId);
+
+    if (post && post.author.id === req.user.id) {
+      const updatedPost = await updatePost(post.id, { active: false });
+
+      res.send({ post: updatedPost });
+    } else {
+      // if there was a post, throw UnauthorizedUserError, otherwise throw PostNotFoundError
+      next(post ? { 
+        name: "UnauthorizedUserError",
+        message: "You cannot delete a post which is not yours"
+      } : {
+        name: "PostNotFoundError",
+        message: "That post does not exist"
+      });
+    }
+
+  } catch ({ name, message }) {
+    next({ name, message })
+  }(post.id, { active: false });
+    
+          res.send({ post: updatedPost });
+        } else {
+          // if there was a post, throw UnauthorizedUserError, otherwise throw PostNotFoundError
+          next(post ? { 
+            name: "UnauthorizedUserError",
+            message: "You cannot delete a post which is not yours"
+          } : {
+            name: "PostNotFoundError",
+            message: "That post does not exist"
+          });
+        }
+    
+      } catch ({ name, message }) {
+        next({ name, message })
+      }
+})
 
 // POST /api/routines/:routineId/activities
 

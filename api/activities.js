@@ -1,11 +1,23 @@
 const express = require("express");
 const router = express.Router();
 
-const { getAllActivities, createActivity } = require('../db/activities');
-const jwt = require("jsonwebtoken");
+const { getAllActivities, createActivity, updateActivity, getActivityById } = require('../db/activities');
+
 
 
 // GET /api/activities/:activityId/routines
+router.get("/:activityId/routines", async (req, res, next) => {
+    const body = req.body
+    console.log(body)
+    try {
+      const activityId = await getActivityById({id:req.params.activityId, name, description});
+      
+  
+      res.send(activityId);
+    } catch (error) {
+      next(error);
+    }
+  });
 
 // GET /api/activities
 router.get("/", async (req, res, next) => {
@@ -57,5 +69,20 @@ router.post("/", async (req, res, next) => {
 
 
 // PATCH /api/activities/:activityId
+
+router.patch('/:activityId', async (req, res, next) => {
+console.log(req.body)
+const { name, description } = req.body
+try {
+    const update = await updateActivity({id:req.params.activityId, name, description})
+    res.send(update)
+    if (update === req.body) {
+        res.send(`An activity with name ${name} already exists`)
+    }
+} catch (error) {
+next(error)
+}
+
+})
 
 module.exports = router;

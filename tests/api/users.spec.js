@@ -35,7 +35,7 @@ const {
   UnauthorizedError,
 } = require("../../errors")
 
-describe("/api/users", () => {
+xdescribe("/api/users", () => {
   xdescribe("POST /api/users/register", () => {
     it("Creates a new user.", async () => {
       // Create some fake user data
