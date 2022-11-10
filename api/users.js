@@ -1,7 +1,8 @@
+/* eslint-disable no-empty */
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const { createUser, getUserByUsername } = require("../db");
+const { createUser, getUserByUsername, getUser } = require("../db");
 
 router.use("/", (req, res, next) => {
   next();
@@ -10,25 +11,18 @@ router.use("/", (req, res, next) => {
 // POST /api/users/login
 router.post("/login", async (req, res, next) => {
   const { username, password } = req.body;
-
-  // request must have both
-  if (!username || !password) {
-    next({
-      name: "MissingCredentialsError",
-      message: "Please supply both a username and password",
-    });
-  }
-
   try {
-    const user = await getUserByUsername(username);
+    const user = await getUser({ username, password });
 
-    if (user && user.password == password) {
-      const token = jwt.sign(
-        { id: user.id, username },
-        process.env.JWT_SECRET,
-        { expiresIn: "1w" }
-      );
-      res.send({ token, message: "you're logged in!" });
+    if (user) {
+      const token = jwt.sign(user, process.env.JWT_SECRET, {
+        expiresIn: "1w",
+      });
+      res.send({
+        token,
+        user,
+        message: "you're logged in!",
+      });
     } else {
       next({
         name: "IncorrectCredentialsError",
@@ -51,7 +45,7 @@ router.post("/register", async (req, res, next) => {
       next({
         error: "Password too short",
         message: "Password Too Short!",
-        name: "Password too short"
+        name: "Password too short",
       });
     }
 
@@ -73,7 +67,7 @@ router.post("/register", async (req, res, next) => {
       res.send({
         message: "thank you for signing up",
         token,
-        user: newUser
+        user: newUser,
       });
     }
   } catch ({ name, message }) {
@@ -82,6 +76,25 @@ router.post("/register", async (req, res, next) => {
 });
 
 // GET /api/users/me
+
+router.get("/me", async (req, res, next) => {
+  // const {username, token} = req.body;
+  try {
+    if (req.user) {
+      res.send(req.user)
+
+    } else { 
+      next({error: 'Unauthorized', name: 'Invalid credentials', message: "You must be logged in to perform this action"})
+    }
+
+    
+
+    
+  } catch (err) {
+    console.log(err.message)
+    next()
+  }
+})
 
 // GET /api/users/:username/routines
 
