@@ -2,7 +2,12 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const { createUser, getUserByUsername, getUser } = require("../db");
+const {
+  createUser,
+  getUserByUsername,
+  getUser,
+  getPublicRoutinesByUser,
+} = require("../db");
 
 router.use("/", (req, res, next) => {
   next();
@@ -81,21 +86,31 @@ router.get("/me", async (req, res, next) => {
   // const {username, token} = req.body;
   try {
     if (req.user) {
-      res.send(req.user)
-
-    } else { 
-      next({error: 'Unauthorized', name: 'Invalid credentials', message: "You must be logged in to perform this action"})
+      res.send(req.user);
+    } else {
+      next({
+        error: "Unauthorized",
+        name: "Invalid credentials",
+        message: "You must be logged in to perform this action",
+      });
     }
-
-    
-
-    
   } catch (err) {
-    console.log(err.message)
-    next()
+    console.log(err.message);
+    next();
   }
-})
+});
 
 // GET /api/users/:username/routines
+router.get("/:username/routines", async (req, res, next) => {
+  const username = req.params.username;
+
+  try {
+    const routines = await getPublicRoutinesByUser({ username });
+    res.send(routines);
+  } catch (err) {
+    console.error(err.message);
+    next();
+  }
+});
 
 module.exports = router;
