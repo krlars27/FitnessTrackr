@@ -178,7 +178,7 @@ describe("/api/routines", () => {
     })
   })
 
-  describe("DELETE /api/routines/:routineId (**)", () => {
+  xdescribe("DELETE /api/routines/:routineId (**)", () => {
     it("Hard deletes a routine. Makes sure to delete all the routineActivities whose routine is the one being deleted.", async () => {
       // Create a routine so we can delete it
       const { fakeUser, token } = await createFakeUserWithToken("John")
@@ -222,7 +222,7 @@ describe("/api/routines", () => {
     })
   })
 
-  xdescribe("POST /api/routines/:routineId/activities", () => {
+  describe("POST /api/routines/:routineId/activities", () => {
     it("Attaches a single activity to a routine.", async () => {
       const { fakeUser, token } = await createFakeUserWithToken("Jerry")
       const fakeActivity = await createFakeActivity(
