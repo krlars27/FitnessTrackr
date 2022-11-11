@@ -24,7 +24,7 @@ const {
 
 const { objectContaining } = expect
 
-xdescribe("/api/routine_activities", () => {
+describe("/api/routine_activities", () => {
   describe("PATCH /api/routine_activities/:routineActivityId (**)", () => {
     it("Updates the count or duration on the routine activity", async () => {
       const { fakeUser, token } = await createFakeUserWithToken("Smith")
