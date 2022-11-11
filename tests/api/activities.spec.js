@@ -153,7 +153,7 @@ describe("/api/activities", () => {
     })
   })
 
-  describe("GET /api/activities/:activityId/routines", () => {
+  xdescribe("GET /api/activities/:activityId/routines", () => {
     it("Get a list of all public routines which feature that activity", async () => {
       const { fakeRoutines } = await createFakeUserWithRoutines("Allen")
       const fakeActivity = await createFakeActivity(
