@@ -7,8 +7,7 @@ const { getAllActivities, createActivity, updateActivity, getActivityById } = re
 
 // GET /api/activities/:activityId/routines
 router.get("/:activityId/routines", async (req, res, next) => {
-    const body = req.body
-    console.log(body)
+    const { name, description } = req.body
     try {
       const activityId = await getActivityById({id:req.params.activityId, name, description});
       

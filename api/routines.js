@@ -39,39 +39,19 @@ console.log(req.user)
 // DELETE /api/routines/:routineId
 router.delete('/:routineId', requireUser, async (req, res, next) => {
     try {
-        const post = await destroyRoutine(req.params.postId);
+        const routine = await destroyRoutine(req.params.routineId);
+        console.log(routine, 'oh no')
+        if (routine && routine.user.id === req.user.id) {
+          const updatedPost = await destroyRoutine(routine.id, { active: false });
     
-        if (post && post.author.id === req.user.id) {
-          const updatedPost = await try {
-    const post = await destroyRoutine(req.params.postId);
-
-    if (post && post.author.id === req.user.id) {
-      const updatedPost = await updatePost(post.id, { active: false });
-
-      res.send({ post: updatedPost });
-    } else {
-      // if there was a post, throw UnauthorizedUserError, otherwise throw PostNotFoundError
-      next(post ? { 
-        name: "UnauthorizedUserError",
-        message: "You cannot delete a post which is not yours"
-      } : {
-        name: "PostNotFoundError",
-        message: "That post does not exist"
-      });
-    }
-
-  } catch ({ name, message }) {
-    next({ name, message })
-  }(post.id, { active: false });
-    
-          res.send({ post: updatedPost });
+          res.send({ routine: updatedPost });
         } else {
-          // if there was a post, throw UnauthorizedUserError, otherwise throw PostNotFoundError
-          next(post ? { 
+          
+          next(routine ? { 
             name: "UnauthorizedUserError",
-            message: "You cannot delete a post which is not yours"
+            message: "You cannot delete a routine which is not yours"
           } : {
-            name: "PostNotFoundError",
+            name: "RoutineNotFoundError",
             message: "That post does not exist"
           });
         }
