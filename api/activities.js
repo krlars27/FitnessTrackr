@@ -70,7 +70,7 @@ router.post("/", async (req, res, next) => {
 // PATCH /api/activities/:activityId
 
 router.patch('/:activityId', async (req, res, next) => {
-console.log(req.body)
+// console.log(req.body)
 const { name, description } = req.body
 try {
     const update = await updateActivity({id:req.params.activityId, name, description})
