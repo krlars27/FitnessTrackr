@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { getAllPublicRoutines, createRoutine, destroyRoutine } = require("../db/routines");
-const { attachActivitiesToRoutines } = require('../db/activities')
-const jwt = require("jsonwebtoken");
+const { getAllPublicRoutines, createRoutine, destroyRoutine  } = require("../db/routines");
+const { addActivityToRoutine, getRoutineActivityById
+ } = require('../db/routine_activities')
+// const jwt = require("jsonwebtoken");
 const { requireUser } = require('./utils')
 // GET /api/routines
 router.get("/", async (req, res, next) => {
@@ -64,21 +65,23 @@ router.delete('/:routineId', requireUser, async (req, res, next) => {
 
 // POST /api/routines/:routineId/activities
 router.post("/:routineId/activities", requireUser, async (req, res, next) => {
-    const { id, username} = req.body;
-  console.log(req.body.routineId)
+  
     try {
-      const attachRoutine = await attachActivitiesToRoutines({routineId:req.params.id, activityId:req.params.id}, id, username);
-      if (attachRoutine) {
-        res.send(attachRoutine);
-      } else {
+      const {routineId} = req.params;
+    const { activityId, count, duration} = req.body;
+    const routine = await getRoutineActivityById(activityId);
+      if (routine) {
         next({
-          name: "duplicate name",
-          message: "You must be logged in to perform this action",
-        });
-      }
-    } catch ({ message, name }) {
-      next({ message, name });
+          name: "duplicate activityId",
+          message: `Activity ID ${activityId} already exists in Routine ID ${routineId}`,
+        })
+      }else{
+        const newRoutine = await addActivityToRoutine({routineId, activityId, duration, count})
+        res.send(newRoutine)
     }
-  });
+} catch (error) {
+    next(error);
+}
+})
 
 module.exports = router;
