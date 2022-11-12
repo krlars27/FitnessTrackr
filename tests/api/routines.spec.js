@@ -29,7 +29,7 @@ const { objectContaining, arrayContaining } = expect
 const { getRoutineById } = require("../../db")
 
 describe("/api/routines", () => {
-  describe("GET /api/routines", () => {
+  xdescribe("GET /api/routines", () => {
     it("Returns a list of public routines, includes the activities with them", async () => {
       const { fakeUser } = await createFakeUserWithToken("Jan")
       const fakeRoutine = await createFakePublicRoutine(
@@ -64,7 +64,7 @@ describe("/api/routines", () => {
     })
   })
 
-  describe("POST /api/routines (*)", () => {
+  xdescribe("POST /api/routines (*)", () => {
     it("Creates a new routine, with the creatorId matching the logged in user", async () => {
       const { fakeUser, token } = await createFakeUserWithToken("Marsha")
 
@@ -100,7 +100,7 @@ describe("/api/routines", () => {
     })
   })
 
-  describe("PATCH /api/routines/:routineId (**)", () => {
+  xdescribe("PATCH /api/routines/:routineId (**)", () => {
     it("Updates a routine, notably changing public/private, the name, and the goal", async () => {
       const { fakeUser, token } = await createFakeUserWithToken("Bradley")
       // Create a routine so we can update it.
@@ -222,7 +222,7 @@ describe("/api/routines", () => {
     })
   })
 
-  describe("POST /api/routines/:routineId/activities", () => {
+  xdescribe("POST /api/routines/:routineId/activities", () => {
     it("Attaches a single activity to a routine.", async () => {
       const { fakeUser, token } = await createFakeUserWithToken("Jerry")
       const fakeActivity = await createFakeActivity(

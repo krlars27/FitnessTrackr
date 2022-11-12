@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getAllPublicRoutines, createRoutine, destroyRoutine  } = require("../db/routines");
+const { getAllPublicRoutines, createRoutine, destroyRoutine, getRoutineById } = require("../db/routines");
 const { addActivityToRoutine, getRoutineActivityById
  } = require('../db/routine_activities')
 // const jwt = require("jsonwebtoken");
@@ -41,27 +41,23 @@ console.log(req.user)
 // DELETE /api/routines/:routineId
 router.delete('/:routineId', requireUser, async (req, res, next) => {
     try {
-        const routine = await destroyRoutine(req.params.routineId);
-        console.log(routine, 'oh no')
-        if (routine && routine.user.id === req.user.id) {
-          const updatedPost = await destroyRoutine(routine.id, { active: false });
-    
-          res.send({ routine: updatedPost });
-        } else {
-          
-          next(routine ? { 
-            name: "UnauthorizedUserError",
-            message: "You cannot delete a routine which is not yours"
-          } : {
-            name: "RoutineNotFoundError",
-            message: "That post does not exist"
+        const routineId = req.params.routineId;
+        const routine = await getRoutineById(routineId)
+        
+        if (routine.creatorId != req.user.id) {
+          res.status(403);
+          next({
+            error: "error message",
+            name: "Unauthorized User",
+            message: `User ${req.user.username} is not allowed to delete ${routine.name}`,
           });
         }
-    
-      } catch ({ name, message }) {
-        next({ name, message })
-      }
-})
+        await destroyRoutine(routineId);
+    res.send(routine);
+  } catch (error) {
+    next(error);
+  }
+});
 
 // POST /api/routines/:routineId/activities
 router.post("/:routineId/activities", requireUser, async (req, res, next) => {
