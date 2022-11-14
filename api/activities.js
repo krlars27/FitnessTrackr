@@ -7,12 +7,13 @@ const { getAllActivities, createActivity, updateActivity, getActivityById } = re
 
 // GET /api/activities/:activityId/routines
 router.get("/:activityId/routines", async (req, res, next) => {
-    const { name, description } = req.body
     try {
-      const activityId = await getActivityById({id:req.params.activityId, name, description});
-      
-  
-      res.send(activityId);
+      const activity = await getActivityById(req.params.activityId);
+      if (activity){
+      res.send(activity);}
+      else {
+        next({name: "Activity does not exist", message: `Activity ${req.params.activityId} not found`})
+      }
     } catch (error) {
       next(error);
     }
