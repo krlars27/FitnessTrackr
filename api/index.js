@@ -72,7 +72,9 @@ router.use('/routine_activities', routineActivitiesRouter);
 
 router.get('*', (req, res, next) => {
     res.status(404)
-    res.send()
+    res.send({
+      message: "Not Found"
+    })
 
 })
 
