@@ -8,7 +8,7 @@ const request = require("supertest")
 require("../../db/client");
 const app = require("../../app");
 
-xdescribe("/api/health", () => {
+describe("/api/health", () => {
   it("responds to a request at /api/health with a message specifying it is healthy", async (done) => {
     const response = await request(app).get("/api/health")
     expect(response.status).toEqual(200);
