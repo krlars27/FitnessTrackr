@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getAllPublicRoutines, createRoutine, destroyRoutine, getRoutineById } = require("../db/routines");
+const { getAllPublicRoutines, createRoutine, destroyRoutine, getRoutineById, updateRoutine } = require("../db/routines");
 const { addActivityToRoutine, getRoutineActivityById
  } = require('../db/routine_activities')
 // const jwt = require("jsonwebtoken");
@@ -37,6 +37,31 @@ console.log(req.user)
 });
 
 // PATCH /api/routines/:routineId
+router.patch("/:routineId", requireUser, async (req, res, next) => {
+    try {
+      const { isPublic, name, goal } = req.body;
+      const routineId = req.params.routineId;
+      const routine = await getRoutineById(routineId);
+  
+      if (routine.creatorId != req.user.id) {
+        res.status(403);
+        next({
+          error: "error message",
+          name: "User Not Found",
+          message: `User ${req.user.username} is not allowed to update ${routine.name}`,
+        });
+      }
+      const updatedRoutine = await updateRoutine({
+        id: routineId,
+        name,
+        goal,
+        isPublic
+      });
+      res.send(updatedRoutine);
+    } catch ({ name, message }) {
+      next({ name, message });
+    }
+  });
 
 // DELETE /api/routines/:routineId
 router.delete('/:routineId', requireUser, async (req, res, next) => {
