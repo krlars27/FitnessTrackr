@@ -14,8 +14,8 @@ router.patch("/:routineActivityId", requireUser, async (req, res, next) => {
   try {
     const { count, duration } = req.body;
     const routineActivityId = req.params.routineActivityId;
-    const routine = await getRoutineById(routineActivityId);
-
+    const routine_activity = await getRoutineActivityById(routineActivityId);
+    const routine = await getRoutineById(routine_activity.routineId )
     if (routine.creatorId != req.user.id) {
       res.status(403);
       next({
@@ -24,12 +24,13 @@ router.patch("/:routineActivityId", requireUser, async (req, res, next) => {
         message: `User ${req.user.username} is not allowed to update ${routine.name}`,
       });
     }
+    else{
     const updatedRoutineActivity = await updateRoutineActivity({
       id: routineActivityId,
       count,
       duration,
     });
-    res.send(updatedRoutineActivity);
+    res.send(updatedRoutineActivity);}
   } catch ({ name, message }) {
     next({ name, message });
   }
@@ -42,7 +43,7 @@ router.delete("/:routineActivityId", requireUser, async (req, res, next) => {
     const routineActivityId = req.params.routineActivityId;
     const routineActivity = await getRoutineActivityById(routineActivityId);
 
-    const routine = await getRoutineById(routineActivity.id);
+    const routine = await getRoutineById(routineActivity.routineId);
     // console.log(routineActivity)
 
     if (routine.creatorId != req.user.id) {

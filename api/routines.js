@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { getAllPublicRoutines, createRoutine, destroyRoutine, getRoutineById, updateRoutine } = require("../db/routines");
-const { addActivityToRoutine, getRoutineActivityById
+const { addActivityToRoutine, getRoutineActivityById, getRoutineActivitiesByRoutine
  } = require('../db/routine_activities')
 // const jwt = require("jsonwebtoken");
 const { requireUser } = require('./utils')
@@ -89,9 +89,18 @@ router.post("/:routineId/activities", requireUser, async (req, res, next) => {
   
     try {
       const {routineId} = req.params;
-    const { activityId, count, duration} = req.body;
-    const routine = await getRoutineActivityById(activityId);
-      if (routine) {
+    const { activityId, count, duration} = req.body; console.log(req.body, "potato")
+    const routine_activities = await getRoutineActivitiesByRoutine({id:routineId});
+    let alreadyFound = false 
+    routine_activities.forEach((r_a) => {
+        if (r_a.activityId == activityId) {
+          alreadyFound = true  
+        }
+    }
+
+    ) 
+    if (alreadyFound) {
+    
         next({
           name: "duplicate activityId",
           message: `Activity ID ${activityId} already exists in Routine ID ${routineId}`,
