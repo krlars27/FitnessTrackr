@@ -45,7 +45,6 @@ async function getRoutineActivitiesByRoutine({ id }) {
     SELECT *
     FROM routine_activities
     WHERE "routineId"=${id}`);
-    // console.log(routine_activities)
     return routine_activities;
   } catch (error) {
     throw error;
@@ -71,7 +70,6 @@ async function updateRoutineActivity({ id, ...fields }) {
     `,
       Object.values(fields)
     );
-      // console.log(routine_activity)
     return routine_activity;
   } catch (error) {
     throw error;
@@ -90,7 +88,6 @@ async function destroyRoutineActivity(id) {
      ;`,
       [id]
     );
-    // console.log(routine_activity)
     return routine_activity;
   } catch (error) {
     throw error;
@@ -107,10 +104,9 @@ async function canEditRoutineActivity(routineActivityId, userId) {
      JOIN routines ON routine_activities."routineId" = routines.id
      AND routine_activities.id =$1
      
-     ;`,[routineActivityId],
-    
+     ;`,
+      [routineActivityId]
     );
-    // console.log(routine_activity)
     return routine_activity.creatorId === userId;
   } catch (error) {
     throw error;

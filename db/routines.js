@@ -9,7 +9,7 @@ async function getRoutineById(id) {
     } = await client.query(`SELECT * FROM routines WHERE id=$1;`, [id]);
     return routine;
   } catch (error) {
-    // console.log(error);
+    console.log(error);
   }
 }
 
@@ -17,7 +17,6 @@ async function getRoutinesWithoutActivities() {
   try {
     const { rows: routines } = await client.query(`
     SELECT * FROM routines`);
-    // console.log(routines)
     return routines;
   } catch (error) {
     throw error;
@@ -33,7 +32,6 @@ async function getAllRoutines() {
     FROM routines
     JOIN users ON routines."creatorId" = users.id
     ;`);
-    // console.log(rows)
     return attachActivitiesToRoutines(rows);
   } catch (error) {
     throw error;
@@ -48,7 +46,6 @@ async function getAllRoutinesByUser({ username }) {
     JOIN users ON routines."creatorId" = users.id
     WHERE "creatorId" IN (SELECT id FROM users WHERE username = '${username}')
     ;`);
-    // console.log(rows)
     return attachActivitiesToRoutines(rows);
   } catch (error) {
     throw error;
@@ -63,7 +60,6 @@ async function getPublicRoutinesByUser({ username }) {
     JOIN users ON routines."creatorId" = users.id
     WHERE "isPublic" = TRUE AND "creatorId" IN (SELECT id FROM users WHERE username = '${username}')
     ;`);
-    // console.log(rows)
     return attachActivitiesToRoutines(rows);
   } catch (error) {
     throw error;
@@ -78,7 +74,6 @@ async function getAllPublicRoutines() {
     JOIN users ON routines."creatorId" = users.id
     WHERE "isPublic" = TRUE
     ;`);
-    // console.log(rows)
     return attachActivitiesToRoutines(rows);
   } catch (error) {
     throw error;
@@ -93,7 +88,6 @@ async function getPublicRoutinesByActivity({ id }) {
     JOIN users ON routines."creatorId" = users.id
     WHERE "isPublic" = TRUE AND routines.id IN (SELECT "routineId" FROM routine_activities WHERE "activityId" = '${id}')
     ;`);
-    // console.log(rows)
     return attachActivitiesToRoutines(rows);
   } catch (error) {
     throw error;
@@ -111,7 +105,6 @@ async function createRoutine({ creatorId, isPublic, name, goal }) {
       RETURNING *;`,
       [creatorId, isPublic, name, goal]
     );
-    // console.log(routine)
     return routine;
   } catch (error) {
     throw error;

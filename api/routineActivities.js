@@ -15,7 +15,7 @@ router.patch("/:routineActivityId", requireUser, async (req, res, next) => {
     const { count, duration } = req.body;
     const routineActivityId = req.params.routineActivityId;
     const routine_activity = await getRoutineActivityById(routineActivityId);
-    const routine = await getRoutineById(routine_activity.routineId )
+    const routine = await getRoutineById(routine_activity.routineId);
     if (routine.creatorId != req.user.id) {
       res.status(403);
       next({
@@ -23,14 +23,14 @@ router.patch("/:routineActivityId", requireUser, async (req, res, next) => {
         name: "User Not Found",
         message: `User ${req.user.username} is not allowed to update ${routine.name}`,
       });
+    } else {
+      const updatedRoutineActivity = await updateRoutineActivity({
+        id: routineActivityId,
+        count,
+        duration,
+      });
+      res.send(updatedRoutineActivity);
     }
-    else{
-    const updatedRoutineActivity = await updateRoutineActivity({
-      id: routineActivityId,
-      count,
-      duration,
-    });
-    res.send(updatedRoutineActivity);}
   } catch ({ name, message }) {
     next({ name, message });
   }
@@ -44,7 +44,6 @@ router.delete("/:routineActivityId", requireUser, async (req, res, next) => {
     const routineActivity = await getRoutineActivityById(routineActivityId);
 
     const routine = await getRoutineById(routineActivity.routineId);
-    // console.log(routineActivity)
 
     if (routine.creatorId != req.user.id) {
       res.status(403);
