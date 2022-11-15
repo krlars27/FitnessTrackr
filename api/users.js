@@ -83,7 +83,6 @@ router.post("/register", async (req, res, next) => {
 // GET /api/users/me
 
 router.get("/me", async (req, res, next) => {
-  // const {username, token} = req.body;
   try {
     if (req.user) {
       res.send(req.user);

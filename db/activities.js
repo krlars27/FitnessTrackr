@@ -111,12 +111,9 @@ async function updateActivity({ id, ...fields }) {
     );
 
     return activities;
-    
   } catch (error) {
-     throw error;
+    throw error;
   }
-
-
 }
 
 module.exports = {

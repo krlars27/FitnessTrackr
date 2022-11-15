@@ -1,10 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const { getAllPublicRoutines, createRoutine, destroyRoutine, getRoutineById, updateRoutine } = require("../db/routines");
-const { addActivityToRoutine, getRoutineActivityById, getRoutineActivitiesByRoutine
- } = require('../db/routine_activities')
-// const jwt = require("jsonwebtoken");
-const { requireUser } = require('./utils')
+const {
+  getAllPublicRoutines,
+  createRoutine,
+  destroyRoutine,
+  getRoutineById,
+  updateRoutine,
+} = require("../db/routines");
+const {
+  addActivityToRoutine,
+  getRoutineActivitiesByRoutine,
+} = require("../db/routine_activities");
+const { requireUser } = require("./utils");
+
 // GET /api/routines
 router.get("/", async (req, res, next) => {
   try {
@@ -19,13 +27,18 @@ router.get("/", async (req, res, next) => {
 // POST /api/routines
 router.post("/", requireUser, async (req, res, next) => {
   const { isPublic, name, goal } = req.body;
-console.log(req.user)
+  console.log(req.user);
   try {
-    const newRoutine = await createRoutine({ creatorId:req.user.id, isPublic, name, goal });
+    const newRoutine = await createRoutine({
+      creatorId: req.user.id,
+      isPublic,
+      name,
+      goal,
+    });
     if (newRoutine) {
       res.send(newRoutine);
     } else {
-      console.log(newRoutine, 'hoops');
+      console.log(newRoutine, "hoops");
       next({
         name: "duplicate name",
         message: "You must be logged in to perform this action",
@@ -38,46 +51,46 @@ console.log(req.user)
 
 // PATCH /api/routines/:routineId
 router.patch("/:routineId", requireUser, async (req, res, next) => {
-    try {
-      const { isPublic, name, goal } = req.body;
-      const routineId = req.params.routineId;
-      const routine = await getRoutineById(routineId);
-  
-      if (routine.creatorId != req.user.id) {
-        res.status(403);
-        next({
-          error: "error message",
-          name: "User Not Found",
-          message: `User ${req.user.username} is not allowed to update ${routine.name}`,
-        });
-      }
-      const updatedRoutine = await updateRoutine({
-        id: routineId,
-        name,
-        goal,
-        isPublic
+  try {
+    const { isPublic, name, goal } = req.body;
+    const routineId = req.params.routineId;
+    const routine = await getRoutineById(routineId);
+
+    if (routine.creatorId != req.user.id) {
+      res.status(403);
+      next({
+        error: "error message",
+        name: "User Not Found",
+        message: `User ${req.user.username} is not allowed to update ${routine.name}`,
       });
-      res.send(updatedRoutine);
-    } catch ({ name, message }) {
-      next({ name, message });
     }
-  });
+    const updatedRoutine = await updateRoutine({
+      id: routineId,
+      name,
+      goal,
+      isPublic,
+    });
+    res.send(updatedRoutine);
+  } catch ({ name, message }) {
+    next({ name, message });
+  }
+});
 
 // DELETE /api/routines/:routineId
-router.delete('/:routineId', requireUser, async (req, res, next) => {
-    try {
-        const routineId = req.params.routineId;
-        const routine = await getRoutineById(routineId)
-        
-        if (routine.creatorId != req.user.id) {
-          res.status(403);
-          next({
-            error: "error message",
-            name: "Unauthorized User",
-            message: `User ${req.user.username} is not allowed to delete ${routine.name}`,
-          });
-        }
-        await destroyRoutine(routineId);
+router.delete("/:routineId", requireUser, async (req, res, next) => {
+  try {
+    const routineId = req.params.routineId;
+    const routine = await getRoutineById(routineId);
+
+    if (routine.creatorId != req.user.id) {
+      res.status(403);
+      next({
+        error: "error message",
+        name: "Unauthorized User",
+        message: `User ${req.user.username} is not allowed to delete ${routine.name}`,
+      });
+    }
+    await destroyRoutine(routineId);
     res.send(routine);
   } catch (error) {
     next(error);
@@ -86,32 +99,36 @@ router.delete('/:routineId', requireUser, async (req, res, next) => {
 
 // POST /api/routines/:routineId/activities
 router.post("/:routineId/activities", requireUser, async (req, res, next) => {
-  
-    try {
-      const {routineId} = req.params;
-    const { activityId, count, duration} = req.body; console.log(req.body, "potato")
-    const routine_activities = await getRoutineActivitiesByRoutine({id:routineId});
-    let alreadyFound = false 
+  try {
+    const { routineId } = req.params;
+    const { activityId, count, duration } = req.body;
+    console.log(req.body, "potato");
+    const routine_activities = await getRoutineActivitiesByRoutine({
+      id: routineId,
+    });
+    let alreadyFound = false;
     routine_activities.forEach((r_a) => {
-        if (r_a.activityId == activityId) {
-          alreadyFound = true  
-        }
-    }
-
-    ) 
+      if (r_a.activityId == activityId) {
+        alreadyFound = true;
+      }
+    });
     if (alreadyFound) {
-    
-        next({
-          name: "duplicate activityId",
-          message: `Activity ID ${activityId} already exists in Routine ID ${routineId}`,
-        })
-      }else{
-        const newRoutine = await addActivityToRoutine({routineId, activityId, duration, count})
-        res.send(newRoutine)
+      next({
+        name: "duplicate activityId",
+        message: `Activity ID ${activityId} already exists in Routine ID ${routineId}`,
+      });
+    } else {
+      const newRoutine = await addActivityToRoutine({
+        routineId,
+        activityId,
+        duration,
+        count,
+      });
+      res.send(newRoutine);
     }
-} catch (error) {
+  } catch (error) {
     next(error);
-}
-})
+  }
+});
 
 module.exports = router;
