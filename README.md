@@ -1,32 +1,120 @@
 FitnessTrackr 💪
 
-Workout Tracking REST API
+Workout Management REST API
 
-FitnessTrackr is a backend application designed to manage workout activities, exercises, and fitness tracking data. Built with Node.js, Express, and PostgreSQL, the application demonstrates REST API development, relational database design, SQL queries, and CRUD operations.
+FitnessTrackr is a backend REST API built with Node.js, Express, and PostgreSQL that allows users to create and manage workout routines, organize fitness activities, and track exercise duration and repetitions.
 
-The project focuses on building a structured backend that supports persistent fitness data management.
+The application features user registration, password hashing, JWT authentication, authorization, relational database management, and RESTful API endpoints.
+
+This project demonstrates practical backend development, database design, API architecture, and automated testing.
 
 ⸻
 
-🛠️ Tech Stack
+🛠️ Technology Stack
 
 Technology	Purpose
-Node.js	Backend JavaScript runtime
+Node.js	Backend runtime
 Express.js	REST API framework
 PostgreSQL	Relational database
-SQL	Database queries and data management
+JavaScript	Application logic
+SQL	Database queries and management
+JWT	User authentication
+bcrypt	Password hashing
 Jest	Automated testing
+Supertest	API endpoint testing
+Axios	HTTP client dependency
+Git	Version control
 
 ⸻
 
 ✨ Key Features
 
-* Workout Management: Supports managing workout-related records.
-* Exercise Tracking: Organizes exercise information and activity data.
-* Relational Database Design: Uses PostgreSQL to structure and persist application data.
-* CRUD Operations: Implements functionality for creating, retrieving, updating, and deleting records.
-* REST API: Provides backend endpoints for application functionality.
-* Automated Testing: Includes a test structure using Jest.
+User Authentication
+
+* User registration and login.
+* Password hashing using bcrypt.
+* JSON Web Token (JWT) authentication.
+* Authenticated user retrieval.
+* User-specific authorization.
+
+Workout Routine Management
+
+* Create workout routines.
+* Update routine names, goals, and visibility.
+* Delete existing routines.
+* Organize public and private routines.
+* Associate routines with individual users.
+
+Activity Management
+
+* Create and retrieve fitness activities.
+* Update activity information.
+* Retrieve public routines associated with specific activities.
+
+Routine Activity Management
+
+* Associate activities with workout routines.
+* Track exercise duration and repetitions.
+* Update routine activity information.
+* Remove activities from routines.
+* Prevent duplicate activity associations.
+
+Database Management
+
+* Relational PostgreSQL database.
+* Primary and foreign key relationships.
+* Unique constraints.
+* Parameterized database queries in supported operations.
+* Separate database access modules.
+
+⸻
+
+🗄️ Database Architecture
+
+The application uses four primary relational tables.
+
+Table	Description
+users	Stores user accounts and hashed passwords
+routines	Stores workout routines and their owners
+activities	Stores available fitness activities
+routine_activities	Connects routines with activities and tracks duration and count
+
+The routine_activities table implements a many-to-many relationship between routines and activities.
+
+⸻
+
+🔌 API Endpoints
+
+Authentication & Users
+
+Method	Endpoint	Description
+POST	/api/users/register	Register a user
+POST	/api/users/login	Authenticate a user
+GET	/api/users/me	Retrieve authenticated user
+GET	/api/users/:username/routines	Retrieve public user routines
+
+Activities
+
+Method	Endpoint	Description
+GET	/api/activities	Retrieve all activities
+POST	/api/activities	Create an activity
+PATCH	/api/activities/:activityId	Update an activity
+GET	/api/activities/:activityId/routines	Retrieve public routines containing an activity
+
+Routines
+
+Method	Endpoint	Description
+GET	/api/routines	Retrieve public routines
+POST	/api/routines	Create a routine
+PATCH	/api/routines/:routineId	Update a routine
+DELETE	/api/routines/:routineId	Delete a routine
+POST	/api/routines/:routineId/activities	Add an activity to a routine
+
+Routine Activities
+
+Method	Endpoint	Description
+PATCH	/api/routine_activities/:routineActivityId	Update an exercise association
+DELETE	/api/routine_activities/:routineActivityId	Remove an exercise association
 
 ⸻
 
@@ -34,13 +122,34 @@ Jest	Automated testing
 
 FitnessTrackr/
 │
-├── api/             # API functionality
-├── db/              # Database configuration and operations
-├── tests/           # Automated tests
-├── app.js           # Express application
-├── server.js        # Server entry point
-├── package.json     # Project dependencies and scripts
-├── package-lock.json
+├── api/
+│   ├── activities.js
+│   ├── index.js
+│   ├── routines.js
+│   ├── routineActivities.js
+│   ├── users.js
+│   └── utils.js
+│
+├── db/
+│   ├── activities.js
+│   ├── client.js
+│   ├── index.js
+│   ├── routine_activities.js
+│   ├── routines.js
+│   ├── seed.js
+│   ├── seedData.js
+│   └── users.js
+│
+├── tests/
+│   ├── api/
+│   ├── db/
+│   ├── helpers.js
+│   └── setup.js
+│
+├── app.js
+├── server.js
+├── errors.js
+├── package.json
 └── README.md
 
 ⸻
@@ -48,8 +157,6 @@ FitnessTrackr/
 ⚙️ Getting Started
 
 Prerequisites
-
-Make sure you have the following installed:
 
 * Node.js
 * npm
@@ -68,43 +175,63 @@ cd FitnessTrackr
 
 npm install
 
-4. Configure the database
+4. Configure environment variables
 
-Create a PostgreSQL database for the application.
+Create a .env file in the project root.
 
-Configure the required database connection settings using the environment variables expected by the project.
+DATABASE_URL=postgres://localhost:5432/fitness-dev
+JWT_SECRET=your_secure_secret
+PORT=3000
 
-5. Start the application
+Use a secure secret for JWT signing and configure the database connection for your local PostgreSQL environment.
+
+5. Initialize the database
+
+npm run seed
+
+Important: The seed script drops and recreates the application’s tables and inserts sample data. Only use it with a development database whose existing data can be deleted.
+
+6. Start the application
 
 npm start
 
-Note: Confirm the available npm scripts and required environment variable names in package.json and the application configuration before running.
+The API runs on port 3000 by default.
+
+Development mode
+
+npm run start:dev
 
 ⸻
 
 🧪 Testing
 
-FitnessTrackr includes a Jest testing structure.
+FitnessTrackr uses Jest and Supertest for automated testing.
 
-Run the project’s configured test command:
+Run the test suite:
 
 npm test
 
-Tests help verify application behavior and identify issues during development.
+Run tests in watch mode:
+
+npm run test:watch
+
+The test suite includes API and database tests covering authentication, user management, activities, routines, and routine activity relationships.
 
 ⸻
 
 🧠 Development Concepts Demonstrated
 
-This project demonstrates practical experience with:
-
-* Backend application development using Node.js and Express.
-* REST API architecture and endpoint organization.
-* Relational database design using PostgreSQL.
-* SQL queries and persistent data management.
+* RESTful API development.
+* Backend application architecture.
+* Relational database design.
+* PostgreSQL and SQL queries.
+* User authentication and authorization.
+* Password hashing and JWT.
 * CRUD operations.
-* Backend application organization.
-* Automated testing with Jest.
+* One-to-many and many-to-many relationships.
+* Middleware and error handling.
+* Automated API and database testing.
+* Git-based version control.
 
 ⸻
 
