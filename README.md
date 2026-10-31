@@ -1,118 +1,118 @@
-FitnessTrackr 💪
+# FitnessTrackr 💪
 
-Workout Tracking REST API
+A workout-tracking REST API built with **Node.js**, **Express**, and **PostgreSQL**. The project demonstrates relational data modeling, parameterized SQL, JWT-based authentication, user authorization, and CRUD operations for routines and activities.
 
-FitnessTrackr is a backend application designed to manage workout activities, exercises, and fitness tracking data. Built with Node.js, Express, and PostgreSQL, the application demonstrates REST API development, relational database design, SQL queries, and CRUD operations.
+## Tech stack
 
-The project focuses on building a structured backend that supports persistent fitness data management.
+- Node.js and Express
+- PostgreSQL with the `pg` client
+- JWT authentication and bcrypt password hashing
+- Jest and Supertest test tooling
 
-⸻
+## Features
 
-🛠️ Tech Stack
+- Register and log in with a username and password
+- Hash passwords before storing them
+- Authenticate requests with Bearer tokens
+- Create and manage workout routines
+- Browse public routines and activities
+- Associate activities with routines and track count/duration
+- Restrict routine changes to the routine owner
+- Use parameterized SQL queries for user-supplied values
 
-Technology	Purpose
-Node.js	Backend JavaScript runtime
-Express.js	REST API framework
-PostgreSQL	Relational database
-SQL	Database queries and data management
-Jest	Automated testing
+## Project structure
 
-⸻
-
-✨ Key Features
-
-* Workout Management: Supports managing workout-related records.
-* Exercise Tracking: Organizes exercise information and activity data.
-* Relational Database Design: Uses PostgreSQL to structure and persist application data.
-* CRUD Operations: Implements functionality for creating, retrieving, updating, and deleting records.
-* REST API: Provides backend endpoints for application functionality.
-* Automated Testing: Includes a test structure using Jest.
-
-⸻
-
-📁 Project Structure
-
+```text
 FitnessTrackr/
-│
-├── api/             # API functionality
-├── db/              # Database configuration and operations
-├── tests/           # Automated tests
-├── app.js           # Express application
-├── server.js        # Server entry point
-├── package.json     # Project dependencies and scripts
-├── package-lock.json
+├── api/                  # Express routers and request middleware
+├── db/                   # PostgreSQL queries, schema setup, and seed data
+├── tests/                # Automated tests
+├── app.js                # Express application
+├── server.js             # HTTP server entry point
+├── package.json
 └── README.md
+```
 
-⸻
+## Getting started
 
-⚙️ Getting Started
+### Prerequisites
 
-Prerequisites
+- Node.js and npm
+- PostgreSQL
 
-Make sure you have the following installed:
+### 1. Clone and install
 
-* Node.js
-* npm
-* PostgreSQL
-* Git
-
-1. Clone the repository
-
+```bash
 git clone https://github.com/krlars27/FitnessTrackr.git
-
-2. Navigate to the project
-
 cd FitnessTrackr
-
-3. Install dependencies
-
 npm install
+```
 
-4. Configure the database
+### 2. Configure environment variables
 
-Create a PostgreSQL database for the application.
+Create a `.env` file in the project root:
 
-Configure the required database connection settings using the environment variables expected by the project.
+```env
+DATABASE_URL=postgres://localhost:5432/fitness-dev
+JWT_SECRET=replace-this-with-a-long-random-secret
+PORT=3000
+```
 
-5. Start the application
+Use a strong, unique secret for `JWT_SECRET`. Do not commit your `.env` file.
 
+The database client uses `DATABASE_URL`; if it is omitted, it defaults to the local `fitness-dev` database.
+
+### 3. Create and seed the database
+
+The seed script rebuilds the application's tables and inserts sample data. **It drops and recreates the existing application tables**, so use it only with a development database whose data can be erased.
+
+```bash
+createdb fitness-dev
+npm run seed
+```
+
+### 4. Start the API
+
+```bash
 npm start
+```
 
-Note: Confirm the available npm scripts and required environment variable names in package.json and the application configuration before running.
+For development with automatic restarts:
 
-⸻
+```bash
+npm run start:dev
+```
 
-🧪 Testing
+The server listens on port 3000 unless `PORT` is set to another value. The health endpoint is `GET /api/health`.
 
-FitnessTrackr includes a Jest testing structure.
+## Authentication
 
-Run the project’s configured test command:
+After registering or logging in, include the returned token in protected requests:
 
+```http
+Authorization: Bearer YOUR_TOKEN
+```
+
+Passwords are hashed with bcrypt. JWTs are signed using the `JWT_SECRET` environment variable.
+
+## Testing
+
+Run the configured test command:
+
+```bash
 npm test
+```
 
-Tests help verify application behavior and identify issues during development.
+The repository includes Jest/Supertest test tooling. Tests should be run against a dedicated test database, not a database containing data you need to keep.
 
-⸻
+## Security and reliability
 
-🧠 Development Concepts Demonstrated
+Recent maintenance work includes parameterized database lookups, allowlisted update fields, safer missing-user handling, early returns after authorization failures, and ownership checks for routine modifications.
 
-This project demonstrates practical experience with:
+## Author and attribution
 
-* Backend application development using Node.js and Express.
-* REST API architecture and endpoint organization.
-* Relational database design using PostgreSQL.
-* SQL queries and persistent data management.
-* CRUD operations.
-* Backend application organization.
-* Automated testing with Jest.
+This repository is maintained in the `krlars27` GitHub account. The original package metadata credits Preston Wallace; that attribution has been retained rather than reassigned.
 
-⸻
-
-👨‍💻 Author
-
-Kevin Larson
-
-B.S. Computer Science — Roosevelt University
-
-* GitHub: @krlars27
-* LinkedIn: linkedin.com/in/krlars27
+- GitHub: [@krlars27](https://github.com/krlars27)
+- LinkedIn: [linkedin.com/in/krlars27](https://www.linkedin.com/in/krlars27)
+- B.S. Computer Science, Roosevelt University
