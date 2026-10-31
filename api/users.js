@@ -1,115 +1,44 @@
-/* eslint-disable no-empty */
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const {
-  createUser,
-  getUserByUsername,
-  getUser,
-  getPublicRoutinesByUser,
-} = require("../db");
+const { createUser, getUserByUsername, getUser, getPublicRoutinesByUser } = require("../db");
 
-router.use("/", (req, res, next) => {
-  next();
-});
-
-// POST /api/users/login
 router.post("/login", async (req, res, next) => {
-  const { username, password } = req.body;
+  const { username, password } = req.body || {};
+  if (!username || !password) return next({ status: 400, name: "ValidationError", message: "Username and password are required." });
   try {
     const user = await getUser({ username, password });
-
-    if (user) {
-      const token = jwt.sign(user, process.env.JWT_SECRET, {
-        expiresIn: "1w",
-      });
-      res.send({
-        token,
-        user,
-        message: "you're logged in!",
-      });
-    } else {
-      next({
-        name: "IncorrectCredentialsError",
-        message: "Username or password is incorrect",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    next(error);
-  }
+    if (!user) return next({ status: 401, name: "IncorrectCredentialsError", message: "Username or password is incorrect" });
+    const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "1w" });
+    return res.send({ token, user, message: "you're logged in!" });
+  } catch (error) { return next(error); }
 });
 
-// POST /api/users/register
 router.post("/register", async (req, res, next) => {
-  const { username, password } = req.body;
-  try {
-    const user = await getUserByUsername(username);
-
-    if (password.length < 8) {
-      next({
-        error: "Password too short",
-        message: "Password Too Short!",
-        name: "Password too short",
-      });
-    }
-
-    if (user) {
-      next({
-        name: "UserExistsError",
-        message: `User ${username} is already taken.`,
-      });
-    } else {
-      const newUser = await createUser({
-        username,
-        password,
-      });
-
-      const token = jwt.sign(newUser, process.env.JWT_SECRET, {
-        expiresIn: "1w",
-      });
-
-      res.send({
-        message: "thank you for signing up",
-        token,
-        user: newUser,
-      });
-    }
-  } catch ({ name, message }) {
-    next({ name, message });
+  const { username, password } = req.body || {};
+  if (typeof username !== "string" || !username.trim() || typeof password !== "string" || !password) {
+    return next({ status: 400, name: "ValidationError", message: "A username and password are required." });
   }
+  if (password.length < 8) return next({ status: 400, name: "PasswordTooShortError", message: "Password must be at least 8 characters long." });
+  try {
+    const normalizedUsername = username.trim();
+    const existingUser = await getUserByUsername(normalizedUsername);
+    if (existingUser) return next({ status: 409, name: "UserExistsError", message: "That username is already taken." });
+    const newUser = await createUser({ username: normalizedUsername, password });
+    if (!newUser) return next({ status: 409, name: "UserExistsError", message: "That username is already taken." });
+    const token = jwt.sign(newUser, process.env.JWT_SECRET, { expiresIn: "1w" });
+    return res.send({ message: "thank you for signing up", token, user: newUser });
+  } catch (error) { return next(error); }
 });
 
-// GET /api/users/me
-
-router.get("/me", async (req, res, next) => {
-  try {
-    if (req.user) {
-      res.send(req.user);
-    } else {
-      next({
-        error: "Unauthorized",
-        name: "Invalid credentials",
-        message: "You must be logged in to perform this action",
-      });
-    }
-  } catch (err) {
-    console.log(err.message);
-    next();
-  }
+router.get("/me", (req, res, next) => {
+  if (!req.user) return next({ status: 401, name: "UnauthorizedError", message: "You must be logged in to perform this action" });
+  return res.send(req.user);
 });
 
-// GET /api/users/:username/routines
 router.get("/:username/routines", async (req, res, next) => {
-  const username = req.params.username;
-
   try {
-    const routines = await getPublicRoutinesByUser({ username });
-    res.send(routines);
-  } catch (err) {
-    console.error(err.message);
-    next();
-  }
+    return res.send(await getPublicRoutinesByUser({ username: req.params.username }));
+  } catch (error) { return next(error); }
 });
-
 module.exports = router;
