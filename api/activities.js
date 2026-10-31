@@ -1,3 +1,4 @@
+
 const express = require("express");
 const router = express.Router();
 
@@ -8,23 +9,25 @@ const {
   getActivityById,
   getActivityByName,
 } = require("../db/activities");
+
 const { getPublicRoutinesByActivity } = require("../db/routines");
+const { ActivityExistsError, ActivityNotFoundError } = require("../errors");
 
 // GET /api/activities/:activityId/routines
 router.get("/:activityId/routines", async (req, res, next) => {
   try {
     const id = req.params.activityId;
     const activity = await getActivityById(id);
+
     if (!activity) {
-      next({
-        error: "error",
+      return next({
         name: "Activity not found",
-        message: `Activity ${id} not found`,
+        message: ActivityNotFoundError(id),
       });
-    } else {
-      const publicRoutines = await getPublicRoutinesByActivity({ id });
-      res.send(publicRoutines);
     }
+
+    const publicRoutines = await getPublicRoutinesByActivity({ id });
+    res.send(publicRoutines);
   } catch (error) {
     next(error);
   }
@@ -34,8 +37,6 @@ router.get("/:activityId/routines", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
   try {
     const allActivities = await getAllActivities();
-    console.log(allActivities, "activity");
-
     res.send(allActivities);
   } catch (error) {
     next(error);
@@ -43,63 +44,66 @@ router.get("/", async (req, res, next) => {
 });
 
 // POST /api/activities
-
 router.post("/", async (req, res, next) => {
-  const { name, description } = req.body;
-
   try {
-    const newActivity = await createActivity({ name, description });
-    if (newActivity) {
-      res.send(newActivity);
-    } else {
-      console.log(newActivity, "woah");
-      next({
-        name: "duplicate name",
-        message: `An activity with name ${name} already exists`,
+    const { name, description } = req.body;
+
+    if (!name || !description) {
+      return next({
+        name: "Missing Required Fields",
+        message: "Activity name and description are required.",
       });
     }
-  } catch ({ message, name }) {
-    next({ message, name });
-  }
-});
 
-router.post("/", async (req, res, next) => {
-  const body = req.body;
-  console.log(body);
-  try {
-    const newActivity = await createActivity();
+    const newActivity = await createActivity({ name, description });
 
-    res.send(newActivity);
+    if (!newActivity) {
+      return next({
+        name: "Activity Exists",
+        message: ActivityExistsError(name),
+      });
+    }
+
+    res.status(201).send(newActivity);
   } catch (error) {
     next(error);
   }
 });
 
 // PATCH /api/activities/:activityId
-
 router.patch("/:activityId", async (req, res, next) => {
   try {
     const { name, description } = req.body;
     const id = req.params.activityId;
+
     const activity = await getActivityById(id);
-    const activityName = await getActivityByName(name);
 
     if (!activity) {
-      next({
-        error: "error",
+      return next({
         name: "Activity not found",
-        message: `Activity ${id} not found`,
+        message: ActivityNotFoundError(id),
       });
-    } else if (activityName) {
-      next({
-        error: "error",
-        name: "Not found",
-        message: `An activity with name ${name} already exists`,
-      });
-    } else {
-      const updatedActivity = await updateActivity({ id, name, description });
-      res.send(updatedActivity);
     }
+
+    // Only check for a duplicate if the name is actually changing.
+    if (name && name !== activity.name) {
+      const activityName = await getActivityByName(name);
+
+      if (activityName && String(activityName.id) !== String(id)) {
+        return next({
+          name: "Activity Exists",
+          message: ActivityExistsError(name),
+        });
+      }
+    }
+
+    const updatedActivity = await updateActivity({
+      id,
+      name,
+      description,
+    });
+
+    res.send(updatedActivity);
   } catch (error) {
     next(error);
   }
