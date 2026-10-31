@@ -1,134 +1,56 @@
 const express = require("express");
 const router = express.Router();
-const {
-  getAllPublicRoutines,
-  createRoutine,
-  destroyRoutine,
-  getRoutineById,
-  updateRoutine,
-} = require("../db/routines");
-const {
-  addActivityToRoutine,
-  getRoutineActivitiesByRoutine,
-} = require("../db/routine_activities");
+const { getAllPublicRoutines, createRoutine, destroyRoutine, getRoutineById, updateRoutine } = require("../db/routines");
+const { addActivityToRoutine, getRoutineActivitiesByRoutine } = require("../db/routine_activities");
 const { requireUser } = require("./utils");
 
-// GET /api/routines
 router.get("/", async (req, res, next) => {
-  try {
-    const allRoutines = await getAllPublicRoutines();
-
-    res.send(allRoutines);
-  } catch (error) {
-    next(error);
-  }
+  try { return res.send(await getAllPublicRoutines()); }
+  catch (error) { return next(error); }
 });
-
-// POST /api/routines
 router.post("/", requireUser, async (req, res, next) => {
-  const { isPublic, name, goal } = req.body;
-  console.log(req.user);
-  try {
-    const newRoutine = await createRoutine({
-      creatorId: req.user.id,
-      isPublic,
-      name,
-      goal,
-    });
-    if (newRoutine) {
-      res.send(newRoutine);
-    } else {
-      console.log(newRoutine, "hoops");
-      next({
-        name: "duplicate name",
-        message: "You must be logged in to perform this action",
-      });
-    }
-  } catch ({ message, name }) {
-    next({ message, name });
+  const { isPublic = false, name, goal } = req.body || {};
+  if (typeof name !== "string" || !name.trim() || typeof goal !== "string" || !goal.trim()) {
+    return next({ status: 400, name: "ValidationError", message: "Routine name and goal are required." });
   }
+  try {
+    const routine = await createRoutine({ creatorId: req.user.id, isPublic: Boolean(isPublic), name: name.trim(), goal: goal.trim() });
+    return res.status(201).send(routine);
+  } catch (error) { return next(error); }
 });
-
-// PATCH /api/routines/:routineId
 router.patch("/:routineId", requireUser, async (req, res, next) => {
   try {
-    const { isPublic, name, goal } = req.body;
-    const routineId = req.params.routineId;
-    const routine = await getRoutineById(routineId);
-
-    if (routine.creatorId != req.user.id) {
-      res.status(403);
-      next({
-        error: "error message",
-        name: "User Not Found",
-        message: `User ${req.user.username} is not allowed to update ${routine.name}`,
-      });
-    }
-    const updatedRoutine = await updateRoutine({
-      id: routineId,
-      name,
-      goal,
-      isPublic,
-    });
-    res.send(updatedRoutine);
-  } catch ({ name, message }) {
-    next({ name, message });
-  }
+    const routine = await getRoutineById(req.params.routineId);
+    if (!routine) return next({ status: 404, name: "RoutineNotFoundError", message: "Routine not found." });
+    if (routine.creatorId !== req.user.id) return next({ status: 403, name: "ForbiddenError", message: "You can only update your own routines." });
+    const updates = {};
+    for (const field of ["isPublic", "name", "goal"]) if (req.body[field] !== undefined) updates[field] = req.body[field];
+    if (!Object.keys(updates).length) return next({ status: 400, name: "ValidationError", message: "Provide a routine field to update." });
+    return res.send(await updateRoutine({ id: routine.id, ...updates }));
+  } catch (error) { return next(error); }
 });
-
-// DELETE /api/routines/:routineId
 router.delete("/:routineId", requireUser, async (req, res, next) => {
   try {
-    const routineId = req.params.routineId;
-    const routine = await getRoutineById(routineId);
-
-    if (routine.creatorId != req.user.id) {
-      res.status(403);
-      next({
-        error: "error message",
-        name: "Unauthorized User",
-        message: `User ${req.user.username} is not allowed to delete ${routine.name}`,
-      });
-    }
-    await destroyRoutine(routineId);
-    res.send(routine);
-  } catch (error) {
-    next(error);
-  }
+    const routine = await getRoutineById(req.params.routineId);
+    if (!routine) return next({ status: 404, name: "RoutineNotFoundError", message: "Routine not found." });
+    if (routine.creatorId !== req.user.id) return next({ status: 403, name: "ForbiddenError", message: "You can only delete your own routines." });
+    await destroyRoutine(routine.id);
+    return res.send(routine);
+  } catch (error) { return next(error); }
 });
-
-// POST /api/routines/:routineId/activities
 router.post("/:routineId/activities", requireUser, async (req, res, next) => {
   try {
     const { routineId } = req.params;
-    const { activityId, count, duration } = req.body;
-    console.log(req.body, "potato");
-    const routine_activities = await getRoutineActivitiesByRoutine({
-      id: routineId,
-    });
-    let alreadyFound = false;
-    routine_activities.forEach((r_a) => {
-      if (r_a.activityId == activityId) {
-        alreadyFound = true;
-      }
-    });
-    if (alreadyFound) {
-      next({
-        name: "duplicate activityId",
-        message: `Activity ID ${activityId} already exists in Routine ID ${routineId}`,
-      });
-    } else {
-      const newRoutine = await addActivityToRoutine({
-        routineId,
-        activityId,
-        duration,
-        count,
-      });
-      res.send(newRoutine);
-    }
-  } catch (error) {
-    next(error);
-  }
+    const { activityId, count, duration } = req.body || {};
+    const routine = await getRoutineById(routineId);
+    if (!routine) return next({ status: 404, name: "RoutineNotFoundError", message: "Routine not found." });
+    if (routine.creatorId !== req.user.id) return next({ status: 403, name: "ForbiddenError", message: "You can only change your own routines." });
+    if (!activityId) return next({ status: 400, name: "ValidationError", message: "An activityId is required." });
+    const existing = await getRoutineActivitiesByRoutine({ id: routineId });
+    if (existing.some((item) => item.activityId === Number(activityId))) return next({ status: 409, name: "DuplicateRoutineActivityError", message: "That activity is already in this routine." });
+    const item = await addActivityToRoutine({ routineId, activityId, count, duration });
+    if (!item) return next({ status: 409, name: "DuplicateRoutineActivityError", message: "That activity is already in this routine." });
+    return res.status(201).send(item);
+  } catch (error) { return next(error); }
 });
-
 module.exports = router;
