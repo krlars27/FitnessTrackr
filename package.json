@@ -1,7 +1,7 @@
 {
   "name": "fitnesstrackr",
   "version": "1.0.0",
-  "description": "an API for our new fitness empire, FitnessTrac.kr, using node, express, postgresql, and jQuery",
+  "description": "A Node.js and Express REST API for workout management, featuring PostgreSQL data modeling, JWT authentication, and routine and activity management.",
   "main": "server.js",
   "scripts": {
     "seed:dev": "nodemon ./db/seed.js",
@@ -11,23 +11,12 @@
     "test": "jest --runInBand",
     "test:watch": "jest --runInBand --watchAll"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wallacepreston/fitnesstrackr.git"
-  },
-  "keywords": [
-    "node",
-    "express",
-    "postgresql",
-    "jquery",
-    "javascript"
-  ],
+  "repository": { "type": "git", "url": "git+https://github.com/krlars27/FitnessTrackr.git" },
+  "keywords": ["nodejs", "express", "postgresql", "javascript", "rest-api", "jwt", "backend", "database"],
   "author": "Preston Wallace",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wallacepreston/fitnesstrackr/issues"
-  },
-  "homepage": "https://github.com/wallacepreston/fitnesstrackr#readme",
+  "bugs": { "url": "https://github.com/krlars27/FitnessTrackr/issues" },
+  "homepage": "https://github.com/krlars27/FitnessTrackr#readme",
   "devDependencies": {
     "eslint": "^8.2.0",
     "eslint-plugin-jest": "^25.2.4",
