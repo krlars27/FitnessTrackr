@@ -11,7 +11,10 @@ const {
 } = require("../db/activities");
 
 const { getPublicRoutinesByActivity } = require("../db/routines");
-const { ActivityExistsError, ActivityNotFoundError } = require("../errors");
+const {
+  ActivityExistsError,
+  ActivityNotFoundError,
+} = require("../errors");
 
 // GET /api/activities/:activityId/routines
 router.get("/:activityId/routines", async (req, res, next) => {
@@ -21,15 +24,16 @@ router.get("/:activityId/routines", async (req, res, next) => {
 
     if (!activity) {
       return next({
-        name: "Activity not found",
+        status: 404,
+        name: "ActivityNotFoundError",
         message: ActivityNotFoundError(id),
       });
     }
 
     const publicRoutines = await getPublicRoutinesByActivity({ id });
-    res.send(publicRoutines);
+    return res.send(publicRoutines);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -37,76 +41,132 @@ router.get("/:activityId/routines", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
   try {
     const allActivities = await getAllActivities();
-    res.send(allActivities);
+    return res.send(allActivities);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
 // POST /api/activities
 router.post("/", async (req, res, next) => {
   try {
-    const { name, description } = req.body;
+    const { name, description } = req.body || {};
 
-    if (!name || !description) {
+    if (
+      typeof name !== "string" ||
+      !name.trim() ||
+      typeof description !== "string" ||
+      !description.trim()
+    ) {
       return next({
-        name: "Missing Required Fields",
-        message: "Activity name and description are required.",
+        status: 400,
+        name: "ValidationError",
+        message: "Activity name and description must be non-empty strings.",
       });
     }
 
-    const newActivity = await createActivity({ name, description });
+    const cleanName = name.trim();
+    const cleanDescription = description.trim();
+
+    const newActivity = await createActivity({
+      name: cleanName,
+      description: cleanDescription,
+    });
 
     if (!newActivity) {
       return next({
-        name: "Activity Exists",
-        message: ActivityExistsError(name),
+        status: 409,
+        name: "ActivityExists",
+        message: ActivityExistsError(cleanName),
       });
     }
 
-    res.status(201).send(newActivity);
+    return res.status(201).send(newActivity);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
 // PATCH /api/activities/:activityId
 router.patch("/:activityId", async (req, res, next) => {
   try {
-    const { name, description } = req.body;
+    const body = req.body || {};
     const id = req.params.activityId;
+    const { name, description } = body;
 
     const activity = await getActivityById(id);
 
     if (!activity) {
       return next({
-        name: "Activity not found",
+        status: 404,
+        name: "ActivityNotFoundError",
         message: ActivityNotFoundError(id),
       });
     }
 
-    // Only check for a duplicate if the name is actually changing.
-    if (name && name !== activity.name) {
-      const activityName = await getActivityByName(name);
+    const updates = {};
 
-      if (activityName && String(activityName.id) !== String(id)) {
+    if (name !== undefined) {
+      if (typeof name !== "string" || !name.trim()) {
         return next({
-          name: "Activity Exists",
-          message: ActivityExistsError(name),
+          status: 400,
+          name: "ValidationError",
+          message: "Activity name must be a non-empty string.",
+        });
+      }
+
+      updates.name = name.trim();
+    }
+
+    if (description !== undefined) {
+      if (
+        typeof description !== "string" ||
+        !description.trim()
+      ) {
+        return next({
+          status: 400,
+          name: "ValidationError",
+          message: "Activity description must be a non-empty string.",
+        });
+      }
+
+      updates.description = description.trim();
+    }
+
+    if (!Object.keys(updates).length) {
+      return next({
+        status: 400,
+        name: "ValidationError",
+        message: "Provide an activity name or description to update.",
+      });
+    }
+
+    // Check for a duplicate only if the name is changing.
+    if (updates.name && updates.name !== activity.name) {
+      const activityName = await getActivityByName(updates.name);
+
+      if (
+        activityName &&
+        String(activityName.id) !== String(id)
+      ) {
+        return next({
+          status: 409,
+          name: "ActivityExists",
+          message: ActivityExistsError(updates.name),
         });
       }
     }
 
     const updatedActivity = await updateActivity({
       id,
-      name,
-      description,
+      ...updates,
     });
 
-    res.send(updatedActivity);
+    return res.send(updatedActivity);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
 module.exports = router;
+
